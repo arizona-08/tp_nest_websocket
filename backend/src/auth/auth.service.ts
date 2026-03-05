@@ -1,15 +1,64 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { PrismaService } from "src/prisma.service";
+import { LoginDto } from "./dto/login.dto";
+import { RegisterDto } from "./dto/register.dto";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  constructor () {}
+  constructor (private readonly prisma: PrismaService) {}
 
-  async login() {
+  async login(loginDto: LoginDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: loginDto.username
+      }
+    });
 
+    if(!user) {
+      throw new NotFoundException('Invalid credentials');
+    }
+
+    const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
+    
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Identifiants invalides');
+    }
+
+    const { password, ...result } = user;
+    return result;
   }
 
-  async register() {
+  async register(registerDto: RegisterDto) {
+    const existing = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: registerDto.email },
+          { username: registerDto.username }
+        ]
+      }
+    });
 
+    if (existing) {
+      const field = existing.email === registerDto.email ? 'Email' : 'Username';
+      throw new BadRequestException(`${field} already in use`);
+    }
+
+    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+
+    return this.prisma.user.create({
+      data: {
+        ...registerDto,
+        password: hashedPassword,
+      },
+      
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        createdAt: true
+      }
+    });
   }
 
   async logout() {
