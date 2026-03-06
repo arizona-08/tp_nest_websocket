@@ -5,7 +5,7 @@ interface AuthLayoutProps {
 }
 function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center">
+    <main className="min-h-screen flex flex-col items-center justify-center px-3">
       {children}
     </main>
   )

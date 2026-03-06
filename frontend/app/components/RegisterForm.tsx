@@ -44,7 +44,7 @@ function RegisterForm() {
         onSubmit={handleSubmit(handleOnSubmit)}
       >
         <div className="text-center mb-6">
-          <h1 className="mb-4 text-2xl font-semibold">inscription</h1>
+          <h1 className="mb-4 text-2xl font-semibold">Inscription</h1>
           <p className="text-sm text-gray-400">Inscrivez-vous sur notre plateform de chat!</p>
         </div>
 
