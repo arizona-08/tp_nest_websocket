@@ -1,26 +1,44 @@
-import { Body, Controller, Delete, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Post, Req, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
+import { request } from "http";
+import { AuthenticationGuard } from "./auth.guard";
 
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
 
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
-    await this.authService.login(loginDto);
+  async login(@Body() loginDto: LoginDto, @Req() req: any) {
+    const user = await this.authService.login(loginDto);
+
+    req.session.user = {
+      id: user.id,
+      username: user.username
+    }
+
+    return {
+      message: "Login successful",
+      user: {
+        username: user.username,
+      }
+    }
   }
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto){
-    await this.authService.register(registerDto);
+   const user = await this.authService.register(registerDto);
+   return { message: "User registered successfully", user };
   }
 
+  @UseGuards(AuthenticationGuard)
   @Delete('logout')
-  async logout() {
-    await this.authService.logout();
-
+  async logout(@Req() req: any) {
+    req.session.destroy();
+    return {
+      message: "Logout successful"
+    }
   }
 }

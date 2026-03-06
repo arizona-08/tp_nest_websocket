@@ -1,9 +1,18 @@
 FROM node:20-alpine
 
+# On s'assure que le dossier appartient à 'node'
 WORKDIR /app
-COPY package*.json ./
+RUN chown -R node:node /app
+
+# On bascule sur l'utilisateur node avant d'installer les dépendances
+USER node
+
+COPY --chown=node:node package*.json ./
 RUN npm install
 
-COPY . .
-EXPOSE 8000
+COPY --chown=node:node . .
+
+# La génération se fera avec les permissions de l'utilisateur node
+RUN npx prisma generate
+
 CMD ["npm", "run", "start:dev"]
