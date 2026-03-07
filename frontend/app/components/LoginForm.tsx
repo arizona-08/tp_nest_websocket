@@ -5,6 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import CTA from '../ui/CTA';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
+import { loginUser } from '@/features/auth/login';
+import { useAuthStore } from '../stores/AuthStore';
+import { useRouter } from 'next/navigation';
 
 function LoginForm() {
   const {
@@ -15,8 +18,20 @@ function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
+  const setUser = useAuthStore((state) => state.setUser);
+  const router = useRouter();
+
   async function handleOnSubmit(data: LoginDto) {
     console.log(data);
+    const response = await loginUser(data);
+    if(response.ok){
+      const responseData = await response.json();
+      console.log("Login successful:", responseData);
+      setUser(responseData.user);
+      router.push("/chat?type=messages");
+    } else {
+      console.log("Login failed");
+    }
   }
 
   return (
