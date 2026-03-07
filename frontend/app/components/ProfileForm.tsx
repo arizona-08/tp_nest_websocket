@@ -14,6 +14,8 @@ function ProfileForm() {
   const authUser = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
   const [usernameColor, setUsernameColor] = React.useState(authUser?.usernameColor || '#000000');
+  const [backendError, setBackendError] = React.useState<string | null>(null);
+  const [backendSuccessMessage, setBackendSuccessMessage] = React.useState<string | null>(null);
 
   const {
     register,
@@ -44,13 +46,18 @@ function ProfileForm() {
   }, [authUser, reset]);
 
   async function handleOnSubmit(data: PersonalInfoDto) {
+    setBackendError(null);
+    setBackendSuccessMessage(null);
     const response = await updateProfile(data);
     if(!response.ok){
       console.error("Erreur lors de la mise à jour du profil");
+      const data = await response.json();
+      setBackendError(data.message);
       return;
     } else {
       const data = await response.json();
       setUser(data.user);
+      setBackendSuccessMessage(data.message);
     }
   }
 
@@ -66,6 +73,7 @@ function ProfileForm() {
               style={{ color: usernameColor, borderColor: usernameColor }}
               {...register("username")}
             />
+            {errors && errors.username && <p className="text-red-500 my-2">{errors.username.message}</p>}
           </div>
           <div className="flex-1">
             <Input
@@ -73,6 +81,7 @@ function ProfileForm() {
               placeholder="johndoe@example.com"
               {...register("email")}
             />
+            {errors && errors.email && <p className="text-red-500 my-2">{errors.email.message}</p>}
           </div>
         </div>
 
@@ -87,6 +96,8 @@ function ProfileForm() {
               setValue("usernameColor", newColorValue); // Met à jour les données du formulaire
             }}
           />
+          {errors && errors.usernameColor && <p className="text-red-500 my-2">{errors.usernameColor.message}</p>}
+          
           <Controller
             control={control}
             name="usernameColor"
@@ -109,7 +120,9 @@ function ProfileForm() {
           {/* <HexColorPicker color={usernameColor} onChange={setUsernameColor} /> */}
         </div>
       </div>
-
+      
+      {backendError && <p className="text-red-500 my-2">{backendError}</p>}
+      {backendSuccessMessage && <p className="text-green-500 my-2">{backendSuccessMessage}</p>}
       <div className="mt-6">
         <CTA
           type="button"
