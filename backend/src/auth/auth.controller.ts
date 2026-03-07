@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Post, Req, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
@@ -14,16 +14,26 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto, @Req() req: any) {
     const user = await this.authService.login(loginDto);
 
-    req.session.user = {
+    const loggedInUser = {
       id: user.id,
-      username: user.username
+      username: user.username,
+      email: user.email,
+      usernameColor: user.usernameColor
     }
+
+    req.session.user = { ...loggedInUser }
 
     return {
       message: "Login successful",
-      user: {
-        username: user.username,
-      }
+      user: { ...loggedInUser }
+    }
+  }
+
+  @Get('me')
+  @UseGuards(AuthenticationGuard)
+  async me(@Req() req: any) {
+    return {
+      user: req.session.user
     }
   }
 
