@@ -1,34 +1,56 @@
 'use client';
-import React from 'react'
+import React, { useEffect } from 'react'
 import Input from '../ui/Input'
 import { HexColorPicker } from 'react-colorful'
 import CTA from '../ui/CTA';
 import { useAuthStore } from '../stores/AuthStore';
 import { Controller, useForm } from 'react-hook-form';
-import { PersonalInfoDto } from '../(app)/profile/dtos/personal-info.dto';
+import { PersonalInfoDto, PersonalInfoSchema } from '../(app)/profile/dtos/personal-info.dto';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { updateProfile } from '@/features/profile/updateProfile';
+import { set } from 'zod';
 
 function ProfileForm() {
   const authUser = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
   const [usernameColor, setUsernameColor] = React.useState(authUser?.usernameColor || '#000000');
 
   const {
     register,
     handleSubmit,
     control,
+    reset,
+    setValue,
     formState: { errors },
   } = useForm<PersonalInfoDto>({
+    resolver: zodResolver(PersonalInfoSchema),
     defaultValues: {
-      username: authUser?.username || '',
-      email: authUser?.email || '',
-      usernameColor: authUser?.usernameColor || '#000000',
+      username: '',
+      email: '',
+      usernameColor: '#000000',
     }
   });
 
-  async function handleOnSubmit(data: PersonalInfoDto) {
-    try{
+  useEffect(() => {
+    if (authUser) {
+      reset({
+        username: authUser.username,
+        email: authUser.email,
+        usernameColor: authUser.usernameColor,
+      });
       
-    } catch (error) {
+      setUsernameColor(authUser.usernameColor || '#000000');
+    }
+  }, [authUser, reset]);
 
+  async function handleOnSubmit(data: PersonalInfoDto) {
+    const response = await updateProfile(data);
+    if(!response.ok){
+      console.error("Erreur lors de la mise à jour du profil");
+      return;
+    } else {
+      const data = await response.json();
+      setUser(data.user);
     }
   }
 
@@ -41,7 +63,6 @@ function ProfileForm() {
             <Input
               label="Nom d'utilisateur"
               placeholder="nom d'utilisateur"
-              value={authUser?.username}
               style={{ color: usernameColor, borderColor: usernameColor }}
               {...register("username")}
             />
@@ -50,7 +71,6 @@ function ProfileForm() {
             <Input
               label="Email"
               placeholder="johndoe@example.com"
-              value={authUser?.email}
               {...register("email")}
             />
           </div>
@@ -60,8 +80,12 @@ function ProfileForm() {
           <Input
             label="Couleur du nom d'utilisateur"
             placeholder="#000000"
-            value={usernameColor}
             {...register("usernameColor")}
+            onChange={(event) => {
+              const newColorValue = event.target.value;
+              setUsernameColor(newColorValue); // Met à jour le style visuel
+              setValue("usernameColor", newColorValue); // Met à jour les données du formulaire
+            }}
           />
           <Controller
             control={control}

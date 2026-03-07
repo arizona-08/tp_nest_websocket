@@ -1,5 +1,7 @@
+import Logout from '@/app/components/Logout'
 import PasswordForm from '@/app/components/PasswordForm'
 import ProfileForm from '@/app/components/ProfileForm'
+import CTA from '@/app/ui/CTA'
 import React from 'react'
 
 function ProfilePage() {
@@ -12,6 +14,10 @@ function ProfilePage() {
       <div className="flex flex-col md:flex-row gap-12 mt-6 md:items-start">
       <ProfileForm />
       <PasswordForm />
+      </div>
+
+      <div className="mt-12">
+        <Logout />
       </div>
     </div>
   )

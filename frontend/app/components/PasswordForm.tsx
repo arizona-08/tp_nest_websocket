@@ -24,7 +24,7 @@ function PasswordForm() {
       <div>
         <CTA
           type="button"
-          color="primary"
+          color="danger"
           text="Changer le mot de passe"
         />
       </div>
