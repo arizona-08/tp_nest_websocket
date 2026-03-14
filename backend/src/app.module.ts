@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma.module';
 import { ProfileModule } from './profile/profile.module';
 import { MessageModule } from './message/message.module';
+import { DiscussionModule } from './discussion/discussion.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { MessageModule } from './message/message.module';
     AuthModule,
     PrismaModule,
     ProfileModule,
-    MessageModule
+    MessageModule,
+    DiscussionModule
   ],
   controllers: [AppController],
   providers: [AppService],

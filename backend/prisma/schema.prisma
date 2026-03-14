@@ -21,7 +21,7 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  discussions Discussion[] @relation("DiscussionUsers")
+  discussions DiscussionUsers[]
   messages Message[]
   reactions MessageReaction[]
 }
@@ -36,8 +36,19 @@ model Session {
 model Discussion {
   id String @id @default(uuid())
   type DiscussionType
-  users User[] @relation("DiscussionUsers")
+  name String?
+  users DiscussionUsers[] 
   messages Message[]
+}
+
+model DiscussionUsers {
+  discussionId String
+  userId String
+
+  discussion Discussion @relation(fields: [discussionId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@id([discussionId, userId])
 }
 
 enum DiscussionType {

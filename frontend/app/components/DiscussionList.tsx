@@ -1,93 +1,94 @@
 'use client';
+import { Discussion } from '@/types/discussion';
 import { useDiscussionListStore } from '../stores/DiscussionListStore'
 
 function DiscussionList() {
-  const discussions = [
-    {
-      id: '111',
-      name: 'Daniel Garcia',
-      lastMessage: 'Hey, comment ça va?'
-    },
-    {
-      id: '111cd',
-      name: 'tom tom',
-      lastMessage: 'fdsfv?'
-    },
-    {
-      id: '11dsdvc1',
-      name: 'dingo',
-      lastMessage: 'fdfdbdftg'
-    },
-    {
-      id: '11fdg1ee',
-      name: 'mickey',
-      lastMessage: 'trfbgbnc'
-    },
-    {
-      id: '11fvgb1',
-      name: 'mickey',
-      lastMessage: 'trfbgbnc'
-    },
-    {
-      id: '11fbfgf1',
-      name: 'mickey',
-      lastMessage: 'trfbgbnc'
-    },
-    {
-      id: '11dfg1',
-      name: 'mickey',
-      lastMessage: 'trfbgbnc'
-    },
-    {
-      id: '11fdgdf1',
-      name: 'mickey',
-      lastMessage: 'trfbgbnc'
-    },
-    {
-      id: '11fdg1',
-      name: 'mickey',
-      lastMessage: 'trfbgbnc'
-    },
-    {
-      id: '1fg11',
-      name: 'mickey',
-      lastMessage: 'trfbgbnc'
-    },
-    {
-      id: '11sdfgr1',
-      name: 'mickey',
-      lastMessage: 'trfbgbnc'
-    },
-    {
-      id: '1sfrg11',
-      name: 'mickey',
-      lastMessage: 'trfbgbnc'
-    },
-    {
-      id: '1fdght11',
-      name: 'mickey',
-      lastMessage: 'trfbgbnc'
-    },
-    {
-      id: '11fgbf1',
-      name: 'mickey',
-      lastMessage: 'trfbgbnc'
-    },
-    {
-      id: '11fdgt1',
-      name: 'mickey',
-      lastMessage: 'trfbgbnc'
-    },
-    {
-      id: '11fdddg1',
-      name: 'mickey',
-      lastMessage: 'trfbgbnc'
-    },
-    {
-      id: '11gfhyre1',
-      name: 'mickey',
-      lastMessage: 'trfbgbnc'
-    },
+  const discussions: Discussion[] = [
+    // {
+    //   id: '111',
+    //   name: 'Daniel Garcia',
+    //   lastMessage: 'Hey, comment ça va?'
+    // },
+    // {
+    //   id: '111cd',
+    //   name: 'tom tom',
+    //   lastMessage: 'fdsfv?'
+    // },
+    // {
+    //   id: '11dsdvc1',
+    //   name: 'dingo',
+    //   lastMessage: 'fdfdbdftg'
+    // },
+    // {
+    //   id: '11fdg1ee',
+    //   name: 'mickey',
+    //   lastMessage: 'trfbgbnc'
+    // },
+    // {
+    //   id: '11fvgb1',
+    //   name: 'mickey',
+    //   lastMessage: 'trfbgbnc'
+    // },
+    // {
+    //   id: '11fbfgf1',
+    //   name: 'mickey',
+    //   lastMessage: 'trfbgbnc'
+    // },
+    // {
+    //   id: '11dfg1',
+    //   name: 'mickey',
+    //   lastMessage: 'trfbgbnc'
+    // },
+    // {
+    //   id: '11fdgdf1',
+    //   name: 'mickey',
+    //   lastMessage: 'trfbgbnc'
+    // },
+    // {
+    //   id: '11fdg1',
+    //   name: 'mickey',
+    //   lastMessage: 'trfbgbnc'
+    // },
+    // {
+    //   id: '1fg11',
+    //   name: 'mickey',
+    //   lastMessage: 'trfbgbnc'
+    // },
+    // {
+    //   id: '11sdfgr1',
+    //   name: 'mickey',
+    //   lastMessage: 'trfbgbnc'
+    // },
+    // {
+    //   id: '1sfrg11',
+    //   name: 'mickey',
+    //   lastMessage: 'trfbgbnc'
+    // },
+    // {
+    //   id: '1fdght11',
+    //   name: 'mickey',
+    //   lastMessage: 'trfbgbnc'
+    // },
+    // {
+    //   id: '11fgbf1',
+    //   name: 'mickey',
+    //   lastMessage: 'trfbgbnc'
+    // },
+    // {
+    //   id: '11fdgt1',
+    //   name: 'mickey',
+    //   lastMessage: 'trfbgbnc'
+    // },
+    // {
+    //   id: '11fdddg1',
+    //   name: 'mickey',
+    //   lastMessage: 'trfbgbnc'
+    // },
+    // {
+    //   id: '11gfhyre1',
+    //   name: 'mickey',
+    //   lastMessage: 'trfbgbnc'
+    // },
   ]
 
   const isDiscussionListOpen = useDiscussionListStore((state) => state.isDiscussionListOpen)
