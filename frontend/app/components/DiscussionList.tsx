@@ -9,82 +9,82 @@ function DiscussionList() {
       lastMessage: 'Hey, comment ça va?'
     },
     {
-      id: '111',
+      id: '111cd',
       name: 'tom tom',
       lastMessage: 'fdsfv?'
     },
     {
-      id: '111',
+      id: '11dsdvc1',
       name: 'dingo',
       lastMessage: 'fdfdbdftg'
     },
     {
-      id: '111',
+      id: '11fdg1ee',
       name: 'mickey',
       lastMessage: 'trfbgbnc'
     },
     {
-      id: '111',
+      id: '11fvgb1',
       name: 'mickey',
       lastMessage: 'trfbgbnc'
     },
     {
-      id: '111',
+      id: '11fbfgf1',
       name: 'mickey',
       lastMessage: 'trfbgbnc'
     },
     {
-      id: '111',
+      id: '11dfg1',
       name: 'mickey',
       lastMessage: 'trfbgbnc'
     },
     {
-      id: '111',
+      id: '11fdgdf1',
       name: 'mickey',
       lastMessage: 'trfbgbnc'
     },
     {
-      id: '111',
+      id: '11fdg1',
       name: 'mickey',
       lastMessage: 'trfbgbnc'
     },
     {
-      id: '111',
+      id: '1fg11',
       name: 'mickey',
       lastMessage: 'trfbgbnc'
     },
     {
-      id: '111',
+      id: '11sdfgr1',
       name: 'mickey',
       lastMessage: 'trfbgbnc'
     },
     {
-      id: '111',
+      id: '1sfrg11',
       name: 'mickey',
       lastMessage: 'trfbgbnc'
     },
     {
-      id: '111',
+      id: '1fdght11',
       name: 'mickey',
       lastMessage: 'trfbgbnc'
     },
     {
-      id: '111',
+      id: '11fgbf1',
       name: 'mickey',
       lastMessage: 'trfbgbnc'
     },
     {
-      id: '111',
+      id: '11fdgt1',
       name: 'mickey',
       lastMessage: 'trfbgbnc'
     },
     {
-      id: '111',
+      id: '11fdddg1',
       name: 'mickey',
       lastMessage: 'trfbgbnc'
     },
     {
-      id: '111',
+      id: '11gfhyre1',
       name: 'mickey',
       lastMessage: 'trfbgbnc'
     },
@@ -99,7 +99,7 @@ function DiscussionList() {
       {/* Boucle sur vos discussions ici */}
       <div className="flex-1">
         {discussions.map((discussion) => (
-          <div className='px-2 py-3 cursor-pointer hover:bg-gray-200' onClick={() => closeDiscussionList('111')}>
+          <div key={discussion.id} className="px-2 py-3 cursor-pointer hover:bg-gray-200" onClick={() => closeDiscussionList(discussion.id)}>
             <p className="font-semibold">{discussion.name}</p>
             <p className="text-sm text-gray-500">{discussion.lastMessage}</p>
           </div>

@@ -2,6 +2,8 @@
 'use client';
 import { ArrowLeft } from 'lucide-react'
 import { useDiscussionListStore } from '../stores/DiscussionListStore'
+import { useEffect, useState } from 'react';
+import { messageSocketService } from '@/features/socket/socket';
 
 function ChatSection() {
   const messages = [
@@ -11,62 +13,86 @@ function ChatSection() {
       content: "hey"
     },
     {
-      id: "jnss",
+      id: "jnsss",
       sender: "test",
       content: "hey"
     },
     {
-      id: "jnss",
+      id: "jnssss",
       sender: "test",
       content: "hey"
     },
     {
-      id: "jnss",
+      id: "jnsssss",
       sender: "test1",
       content: "hey"
     },
     {
-      id: "jnss",
+      id: "jnsssssss",
       sender: "test",
       content: "hey"
     },
     {
-      id: "jnss",
+      id: "jnssssssss",
       sender: "test",
       content: "hey"
     },
     {
-      id: "jnss",
+      id: "jnsssssssss",
       sender: "test",
       content: "heyyyyyyyyyyyyyyyyyyyy"
     },
     {
-      id: "jnss",
+      id: "jnssssssssss",
       sender: "test1",
       content: "hey"
     },
     {
-      id: "jnss",
+      id: "jnsssssssssss",
       sender: "test1",
       content: "hey"
     },
     {
-      id: "jnss",
+      id: "jnssssssssssss",
       sender: "test",
       content: "hey"
     },
     {
-      id: "jnss",
+      id: "jnsssdffve",
       sender: "test1",
       content: "hey"
     },
     {
-      id: "jnss",
+      id: "jnssdferfbgr",
       sender: "test",
       content: "hey"
     },
   ]
-  const openDiscussionList = useDiscussionListStore((state) => state.open)
+
+  const openDiscussionList = useDiscussionListStore((state) => state.open);
+
+  const [message, setMessage] = useState<string>("");
+
+  function handleSendMessage() {
+    if(message.trim() !== "") {
+      messageSocketService.sendMessage(message, "111");
+      setMessage("");
+      console.log("Message sent:", message);
+    }
+  }
+
+  useEffect(() => {
+    messageSocketService.connect();
+
+    const unsubscribe = messageSocketService.onMessage((message) => {
+      console.log("Received message:", message);
+    });
+
+    return () => {
+      unsubscribe();
+      messageSocketService.disconnect();
+    };
+  }, [])
 
   return (
     <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
@@ -88,12 +114,18 @@ function ChatSection() {
       </div>
 
       {/* Input de message (Fixé en bas) */}
-      <div className="p-4 bg-white border-t">
+      <div className="p-4 bg-white border-t flex items-center gap-4">
           <input 
             type="text" 
             placeholder="Type a message..." 
             className="w-full p-2 border rounded-lg"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
           />
+
+        <button className="bg-green-500 p-2 text-white rounded-md hover:bg-green-600" onClick={handleSendMessage}>
+          Envoyer
+        </button>
       </div>
     </div>
   )
