@@ -37,6 +37,7 @@ model Discussion {
   id String @id @default(uuid())
   type DiscussionType
   name String?
+  lastMessageAt DateTime @default(now())
   users DiscussionUsers[] 
   messages Message[]
 }

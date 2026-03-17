@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
 import { DiscussionService } from "./discussion.service";
 import type { CreatePrivateDiscussionDto } from "./dtos/create-private.dto";
 import type { CreateGroupDiscussionDto } from "./dtos/create-group.dto";
@@ -10,12 +10,20 @@ export class DiscussionController {
   constructor(private readonly discussionService: DiscussionService) {}
 
   @Post('create-private')
-  async createDiscussion(@Body() createPrivateDiscussionDto: CreatePrivateDiscussionDto) {
-
+  async createDiscussion(@Req() req: any, @Body() createPrivateDiscussionDto: CreatePrivateDiscussionDto) {
+    const authUserId = req.session.user.id;
+    return this.discussionService.createPrivateDiscussion(authUserId, createPrivateDiscussionDto);
   }
 
   @Post('create-group')
-  async createGroupDiscussion(@Body() createGroupDiscussionDto: CreateGroupDiscussionDto) {
+  async createGroupDiscussion(@Req() req: any, @Body() createGroupDiscussionDto: CreateGroupDiscussionDto) {
+    const authUserId = req.session.user.id;
+    return this.discussionService.createGroupDiscussion(authUserId, createGroupDiscussionDto);
+  }
 
+  @Get('me')
+  async getUserDiscussions(@Req() req: any) {
+    const authUserId = req.session.user.id;
+    return this.discussionService.getUserDiscussions(authUserId);
   }
 }

@@ -2,19 +2,15 @@ import { searchUsers } from '@/features/users/users';
 import { User } from '@/types/user';
 import React, { useEffect } from 'react'
 import CTA from '../ui/CTA';
+import { useAddUserModalStore } from '../stores/AddUserModal';
 import { useAuthStore } from '../stores/AuthStore';
+import { createPrivateDiscussion } from '@/features/discussion/create-discussion';
+
 
 function AddUserModal() {
-  const suggestedUsers = [
-    {
-      username: "danielgarcia",
-      avatar: "https://randomuser.me/api/portraits/men/1.jpg"
-    },
-    {
-      username: "diegomontana",
-      avatar: "https://randomuser.me/api/portraits/men/2.jpg"
-    },
-  ]
+
+  const isAddUserModalOpen = useAddUserModalStore((state) => state.isAddUserModalOpen);
+  const closeAddUserModal = useAddUserModalStore((state) => state.closeAddUserModal);
 
   const [searchQuery, setSearchQuery] = React.useState<string>("");
   const [results, setResults] = React.useState<User[]>([]);
@@ -31,10 +27,18 @@ function AddUserModal() {
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery])
+  }, [searchQuery]);
+
+
+  async function handleAddUser(userId: string){
+    const response = await createPrivateDiscussion(userId);
+    const result = await response.json();
+    console.log(result);
+    closeAddUserModal();
+  }
 
   return (
-    <div className="fixed z-50 inset-0 bg-black/25 bg-opacity-50 flex flex-col items-center justify-center ">
+    <div className={`fixed z-50 inset-0 bg-black/25 bg-opacity-50 flex flex-col items-center justify-center ${isAddUserModalOpen ? 'block' : 'hidden'}`}>
       <div className="bg-white p-4 rounded-md min-w-80 max-w-90 w-full">
         <div className=" flex flex-col items-center justify-center gap-4">
           <h1 className="text-xl font-semibold">Ajouter un utilisateur</h1>
@@ -59,11 +63,15 @@ function AddUserModal() {
 
               <div>
                 {authUser && authUser.username !== user.username && (
-                  <CTA type="button" color="primary" text="Ajouter" onClick={() => console.log("Ajouter", user.username)}/>
+                  <CTA type="button" color="primary" text="Ajouter" onClick={() => handleAddUser(user.id)}/>
                 )}
               </div>
             </div>
           ))}
+        </div>
+
+        <div className='flex justify-end mt-8'>
+          <CTA type="button" color="secondary" text="Fermer" onClick={closeAddUserModal}/>
         </div>
       </div>
     </div>

@@ -3,6 +3,9 @@ import { Discussion } from '@/types/discussion';
 import { useDiscussionListStore } from '../stores/DiscussionListStore'
 import { UserPlus } from 'lucide-react';
 import AddUserModal from './AddUserModal';
+import { useAddUserModalStore } from '../stores/AddUserModal';
+import { useEffect } from 'react';
+import { fetchMyDiscussions } from '@/features/discussion/get-my-discussions';
 
 function DiscussionList() {
   const discussions: Discussion[] = [
@@ -95,13 +98,23 @@ function DiscussionList() {
 
   const isDiscussionListOpen = useDiscussionListStore((state) => state.isDiscussionListOpen)
   const closeDiscussionList = useDiscussionListStore((state) => state.close)
+  const openAddUserModal = useAddUserModalStore((state) => state.openAddUserModal)
+
+  useEffect(() => {
+    const getMydiscussions = async () => {
+      const response = await fetchMyDiscussions();
+      const result = await response.json();
+      console.log("My discussions:", result);
+    }
+    getMydiscussions();
+  }, [])
 
   return (
     <aside className={`relative border-r border-gray-100 flex flex-col overflow-y-auto ${isDiscussionListOpen ? 'w-full' : 'w-0'} transition-all duration-300 md:w-1/3 lg:w-1/4`}>
       <AddUserModal />
       <div className="p-4 font-bold text-xl sticky top-0 bg-white flex items-center justify-between">
         <h2>Message</h2>
-        <UserPlus className="w-10 h-10 p-2 hover:bg-gray-100 rounded-md"/>
+        <UserPlus className="w-10 h-10 p-2 hover:bg-gray-100 rounded-md" onClick={openAddUserModal}/>
       </div>
       {/* Boucle sur vos discussions ici */}
       <div className="flex-1">

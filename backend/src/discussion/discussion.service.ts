@@ -7,7 +7,7 @@ import { CreateGroupDiscussionDto } from "./dtos/create-group.dto";
 export class DiscussionService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createPrivateDiscussion({authUserId, userId}: CreatePrivateDiscussionDto) {
+  async createPrivateDiscussion(authUserId: string, { userId }: CreatePrivateDiscussionDto) {
 
     const existing = await this.prismaService.discussion.findFirst({
       where: {
@@ -41,7 +41,7 @@ export class DiscussionService {
     return discussion;
   }
 
-  async createGroupDiscussion({name, userIds}: CreateGroupDiscussionDto) {
+  async createGroupDiscussion(authUserId: string, {name, userIds}: CreateGroupDiscussionDto) {
     const discussion = await this.prismaService.discussion.create({
       data: {
         type: "GROUP",
@@ -58,5 +58,41 @@ export class DiscussionService {
     })
 
     return discussion;
+  }
+
+  async getUserDiscussions(authUserId: string) {
+    const discussions = await this.prismaService.discussion.findMany({
+      where: {
+        users: {
+          some: { userId: authUserId }
+        }
+      },
+      include: {
+        users: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true
+              }
+            }
+          }
+        },
+        messages: {
+          orderBy: { sendedAt: "desc" },
+          take: 1,
+          include: {
+            author: {
+              select: {
+                id: true,
+                username: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    return discussions;
   }
 }
