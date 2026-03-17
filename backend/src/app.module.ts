@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma.module';
 import { ProfileModule } from './profile/profile.module';
 import { MessageModule } from './message/message.module';
 import { DiscussionModule } from './discussion/discussion.module';
+import { UserModule } from './users/user.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { DiscussionModule } from './discussion/discussion.module';
     PrismaModule,
     ProfileModule,
     MessageModule,
-    DiscussionModule
+    DiscussionModule,
+    UserModule
   ],
   controllers: [AppController],
   providers: [AppService],

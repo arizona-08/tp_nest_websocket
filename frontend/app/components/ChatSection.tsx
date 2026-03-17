@@ -5,75 +5,83 @@ import { useDiscussionListStore } from '../stores/DiscussionListStore'
 import { useEffect, useState } from 'react';
 import { messageSocketService } from '@/features/socket/socket';
 
+type MessageType = {
+  id: string;
+  sender: string;
+  content: string;
+}
+
+const messages: MessageType[] = [
+  // {
+  //   id: "jnss",
+  //   sender: "test",
+  //   content: "hey"
+  // },
+  // {
+  //   id: "jnsss",
+  //   sender: "test",
+  //   content: "hey"
+  // },
+  // {
+  //   id: "jnssss",
+  //   sender: "test",
+  //   content: "hey"
+  // },
+  // {
+  //   id: "jnsssss",
+  //   sender: "test1",
+  //   content: "hey"
+  // },
+  // {
+  //   id: "jnsssssss",
+  //   sender: "test",
+  //   content: "hey"
+  // },
+  // {
+  //   id: "jnssssssss",
+  //   sender: "test",
+  //   content: "hey"
+  // },
+  // {
+  //   id: "jnsssssssss",
+  //   sender: "test",
+  //   content: "heyyyyyyyyyyyyyyyyyyyy"
+  // },
+  // {
+  //   id: "jnssssssssss",
+  //   sender: "test1",
+  //   content: "hey"
+  // },
+  // {
+  //   id: "jnsssssssssss",
+  //   sender: "test1",
+  //   content: "hey"
+  // },
+  // {
+  //   id: "jnssssssssssss",
+  //   sender: "test",
+  //   content: "hey"
+  // },
+  // {
+  //   id: "jnsssdffve",
+  //   sender: "test1",
+  //   content: "hey"
+  // },
+  // {
+  //   id: "jnssdferfbgr",
+  //   sender: "test",
+  //   content: "hey"
+  // },
+]
+
 function ChatSection() {
-  const messages = [
-    {
-      id: "jnss",
-      sender: "test",
-      content: "hey"
-    },
-    {
-      id: "jnsss",
-      sender: "test",
-      content: "hey"
-    },
-    {
-      id: "jnssss",
-      sender: "test",
-      content: "hey"
-    },
-    {
-      id: "jnsssss",
-      sender: "test1",
-      content: "hey"
-    },
-    {
-      id: "jnsssssss",
-      sender: "test",
-      content: "hey"
-    },
-    {
-      id: "jnssssssss",
-      sender: "test",
-      content: "hey"
-    },
-    {
-      id: "jnsssssssss",
-      sender: "test",
-      content: "heyyyyyyyyyyyyyyyyyyyy"
-    },
-    {
-      id: "jnssssssssss",
-      sender: "test1",
-      content: "hey"
-    },
-    {
-      id: "jnsssssssssss",
-      sender: "test1",
-      content: "hey"
-    },
-    {
-      id: "jnssssssssssss",
-      sender: "test",
-      content: "hey"
-    },
-    {
-      id: "jnsssdffve",
-      sender: "test1",
-      content: "hey"
-    },
-    {
-      id: "jnssdferfbgr",
-      sender: "test",
-      content: "hey"
-    },
-  ]
 
   const openDiscussionList = useDiscussionListStore((state) => state.open);
 
   const [message, setMessage] = useState<string>("");
 
-  function handleSendMessage() {
+  async function handleSendMessage(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
     if(message.trim() !== "") {
       messageSocketService.sendMessage(message, "111");
       setMessage("");
@@ -114,7 +122,7 @@ function ChatSection() {
       </div>
 
       {/* Input de message (Fixé en bas) */}
-      <div className="p-4 bg-white border-t flex items-center gap-4">
+      <form className="p-4 bg-white border-t flex items-center gap-4">
           <input 
             type="text" 
             placeholder="Type a message..." 
@@ -126,7 +134,7 @@ function ChatSection() {
         <button className="bg-green-500 p-2 text-white rounded-md hover:bg-green-600" onClick={handleSendMessage}>
           Envoyer
         </button>
-      </div>
+      </form>
     </div>
   )
 }
