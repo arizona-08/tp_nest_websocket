@@ -2,13 +2,14 @@
 'use client';
 import { ArrowLeft } from 'lucide-react'
 import { useDiscussionListStore } from '../stores/DiscussionListStore'
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { messageSocketService } from '@/features/socket/socket';
 import { getDiscussion } from '@/features/discussion/get-my-discussions';
 import { formatDiscussionName } from '@/utils/discussion';
 import { useAuthStore } from '../stores/AuthStore';
 import { Message } from '@/types/message';
 import { formatTime } from '@/utils/date';
+import { set } from 'zod';
 
 
 function ChatSection() {
@@ -17,13 +18,38 @@ function ChatSection() {
 
   const [message, setMessage] = useState<string>("");
   const [allMessages, setAllMessages] = useState<Message[]>([]);
+  const [usersTyping, setUsersTyping] = useState<string[]>([]);
 
   const activeDiscussion = useDiscussionListStore((state) => state.activeDiscussion);
   const setActiveDiscussion = useDiscussionListStore((state) => state.setActiveDiscussion);
   const authUser = useAuthStore((state) => state.user);
 
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  function handleMessageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setMessage(e.target.value);
+
+    if(!typingTimeoutRef.current) {
+      messageSocketService.isTyping(authUser?.username || "Unknown", activeDiscussion.id);
+    } else {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      messageSocketService.stopTyping(authUser?.username || "Unknown", activeDiscussion.id);
+      typingTimeoutRef.current = null;
+    }, 2000);
+  }
+
   async function handleSendMessage(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
+    messageSocketService.stopTyping(authUser?.username || "Unknown", activeDiscussion.id);
+
     if(message.trim() !== "") {
       const dataToSend = {
         content: message,
@@ -31,21 +57,36 @@ function ChatSection() {
       }
 
       messageSocketService.sendMessage(dataToSend, activeDiscussion.id);
+      setAllMessages((prevMessages) => [...prevMessages, { ...dataToSend, id: `temp-${Date.now()}`, discussionId: activeDiscussion.id, sendedAt: new Date().toISOString() }]);
       setMessage("");
-      console.log("Message sent:", message);
     }
   }
 
   useEffect(() => {
-    messageSocketService.connect();
 
-    const unsubscribe = messageSocketService.onMessage((message) => {
-      console.log("Received message:", message);
+    if(!activeDiscussion) return;
+    messageSocketService.connect();
+    messageSocketService.joinDiscussion(activeDiscussion.id);
+
+    const unsubscribeOnMessage = messageSocketService.onMessage((message) => {
       setAllMessages((prevMessages) => [...prevMessages, message]);
     });
 
+    const unsubscribeOnUserTyping = messageSocketService.onUserTyping((data) => {
+      console.log(`${data.username} is typing...`);
+      setUsersTyping((prev) => [...prev, data.username]);
+    });
+
+    const unsubscribeOnUserStopTyping = messageSocketService.onUserStopTyping((data) => {
+      console.log(`${data.username} has stopped typing.`);
+      setUsersTyping((prev) => prev.filter((username) => username !== data.username));
+    });
+
     return () => {
-      unsubscribe();
+      unsubscribeOnMessage();
+      unsubscribeOnUserTyping();
+      unsubscribeOnUserStopTyping();
+      messageSocketService.leaveDiscussion(activeDiscussion.id);
       messageSocketService.disconnect();
     };
   }, [])
@@ -78,6 +119,11 @@ function ChatSection() {
           <ArrowLeft className="md:hidden"/>
           <p className="font-semibold">{activeDiscussion.name}</p>
         </div>
+        {usersTyping.length > 0 && (
+          <p className="text-sm text-gray-400">
+            {usersTyping.join(", ")} {usersTyping.length === 1 ? "est" : "sont"} en train d'écrire...
+          </p>
+        )}
       </div>
 
       {/* Zone des bulles de messages (Scrollable) */}
@@ -97,7 +143,7 @@ function ChatSection() {
             placeholder="Type a message..." 
             className="w-full p-2 border rounded-lg"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={handleMessageChange}
           />
 
         <button className="bg-green-500 p-2 text-white rounded-md hover:bg-green-600" onClick={handleSendMessage}>
