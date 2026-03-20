@@ -16,7 +16,8 @@ export class MessageGateway {
 
   @SubscribeMessage('send_message')
   async sendMessage(@MessageBody() data: any){
-    this.server.emit('receive_message', data);
+    const savedMessage = await this.messageService.saveMessage(data.discussionId, data.authorId, data.content);
+    this.server.emit('receive_message', {...data, id: savedMessage.id});
     return data;
   }
 

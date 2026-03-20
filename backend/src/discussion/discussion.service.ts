@@ -95,4 +95,39 @@ export class DiscussionService {
 
     return discussions;
   }
+
+  async getDiscussion(discussionId: string, userId: string) {
+    const discussion = await this.prismaService.discussion.findUnique({
+      where: { 
+        id: discussionId,
+        users: {
+          some: { userId }
+        }
+      },
+      include: {
+        users: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true
+              }
+            }
+          }
+        },
+
+        messages: {
+          orderBy: { sendedAt: "asc" },
+          include: { author: {
+            select: {
+              id: true,
+              username: true
+            }
+          } } 
+        }
+      }
+    });
+
+    return discussion;
+  }
 }

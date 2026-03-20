@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { DiscussionService } from "./discussion.service";
 import type { CreatePrivateDiscussionDto } from "./dtos/create-private.dto";
 import type { CreateGroupDiscussionDto } from "./dtos/create-group.dto";
@@ -25,5 +25,11 @@ export class DiscussionController {
   async getUserDiscussions(@Req() req: any) {
     const authUserId = req.session.user.id;
     return this.discussionService.getUserDiscussions(authUserId);
+  }
+
+  @Get(':id')
+  async getDiscussion(@Req() req: any, @Param('id') discussionId: string) {
+    const userId = req.session.user.id;
+    return this.discussionService.getDiscussion(discussionId, userId);
   }
 }

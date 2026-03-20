@@ -6,8 +6,11 @@ import { useAddUserModalStore } from '../stores/AddUserModal';
 import { useAuthStore } from '../stores/AuthStore';
 import { createPrivateDiscussion } from '@/features/discussion/create-discussion';
 
+interface AddUserModalProps {
+  refetchDiscussions: () => void;
+}
 
-function AddUserModal() {
+function AddUserModal({ refetchDiscussions }: AddUserModalProps) {
 
   const isAddUserModalOpen = useAddUserModalStore((state) => state.isAddUserModalOpen);
   const closeAddUserModal = useAddUserModalStore((state) => state.closeAddUserModal);
@@ -35,6 +38,7 @@ function AddUserModal() {
     const result = await response.json();
     console.log(result);
     closeAddUserModal();
+    refetchDiscussions();
   }
 
   return (

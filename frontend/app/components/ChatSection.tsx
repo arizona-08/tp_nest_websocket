@@ -4,86 +4,33 @@ import { ArrowLeft } from 'lucide-react'
 import { useDiscussionListStore } from '../stores/DiscussionListStore'
 import { useEffect, useState } from 'react';
 import { messageSocketService } from '@/features/socket/socket';
+import { getDiscussion } from '@/features/discussion/get-my-discussions';
+import { formatDiscussionName } from '@/utils/discussion';
+import { useAuthStore } from '../stores/AuthStore';
+import { Message } from '@/types/message';
+import { set } from 'zod';
 
-type MessageType = {
-  id: string;
-  sender: string;
-  content: string;
-}
-
-const messages: MessageType[] = [
-  // {
-  //   id: "jnss",
-  //   sender: "test",
-  //   content: "hey"
-  // },
-  // {
-  //   id: "jnsss",
-  //   sender: "test",
-  //   content: "hey"
-  // },
-  // {
-  //   id: "jnssss",
-  //   sender: "test",
-  //   content: "hey"
-  // },
-  // {
-  //   id: "jnsssss",
-  //   sender: "test1",
-  //   content: "hey"
-  // },
-  // {
-  //   id: "jnsssssss",
-  //   sender: "test",
-  //   content: "hey"
-  // },
-  // {
-  //   id: "jnssssssss",
-  //   sender: "test",
-  //   content: "hey"
-  // },
-  // {
-  //   id: "jnsssssssss",
-  //   sender: "test",
-  //   content: "heyyyyyyyyyyyyyyyyyyyy"
-  // },
-  // {
-  //   id: "jnssssssssss",
-  //   sender: "test1",
-  //   content: "hey"
-  // },
-  // {
-  //   id: "jnsssssssssss",
-  //   sender: "test1",
-  //   content: "hey"
-  // },
-  // {
-  //   id: "jnssssssssssss",
-  //   sender: "test",
-  //   content: "hey"
-  // },
-  // {
-  //   id: "jnsssdffve",
-  //   sender: "test1",
-  //   content: "hey"
-  // },
-  // {
-  //   id: "jnssdferfbgr",
-  //   sender: "test",
-  //   content: "hey"
-  // },
-]
 
 function ChatSection() {
 
   const openDiscussionList = useDiscussionListStore((state) => state.open);
 
   const [message, setMessage] = useState<string>("");
+  const [allMessages, setAllMessages] = useState<Message[]>([]);
+
+  const activeDiscussion = useDiscussionListStore((state) => state.activeDiscussion);
+  const setActiveDiscussion = useDiscussionListStore((state) => state.setActiveDiscussion);
+  const authUser = useAuthStore((state) => state.user);
 
   async function handleSendMessage(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     if(message.trim() !== "") {
-      messageSocketService.sendMessage(message, "111");
+      const dataToSend = {
+        content: message,
+        authorId: authUser?.id || "",
+      }
+
+      messageSocketService.sendMessage(dataToSend, activeDiscussion.id);
       setMessage("");
       console.log("Message sent:", message);
     }
@@ -94,6 +41,7 @@ function ChatSection() {
 
     const unsubscribe = messageSocketService.onMessage((message) => {
       console.log("Received message:", message);
+      setAllMessages((prevMessages) => [...prevMessages, message]);
     });
 
     return () => {
@@ -102,20 +50,40 @@ function ChatSection() {
     };
   }, [])
 
+  useEffect(() => {
+    async function fetchActiveDiscussion(){
+      if(activeDiscussion.id) {
+        const response = await getDiscussion(activeDiscussion.id);
+        const fetchedDiscussion = await response.json();
+        console.log("Active discussion:", fetchedDiscussion);
+
+        setActiveDiscussion({
+          id: fetchedDiscussion.id,
+          name: formatDiscussionName(fetchedDiscussion, authUser?.id || "")
+        });
+
+        setAllMessages(fetchedDiscussion.messages); // Assuming messages are ordered from oldest to newest, we reverse them to display the newest at the bottom
+      }
+    }
+
+    fetchActiveDiscussion();
+    console.log("Active discussion ID:", activeDiscussion.id);
+  }, [activeDiscussion.id])
+
   return (
     <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
       {/* Header de la conversation */}
       <div className="h-16 border-b bg-white flex items-center gap-4 px-6">
         <div className="flex items-center gap-4 cursor-pointer" onClick={openDiscussionList}>
           <ArrowLeft className="md:hidden"/>
-          <p className="font-semibold">Daniel Garcia</p>
+          <p className="font-semibold">{activeDiscussion.name}</p>
         </div>
       </div>
 
       {/* Zone des bulles de messages (Scrollable) */}
       <div className="flex flex-col flex-1 overflow-y-auto p-6 space-y-4">
-          {messages.map((message) => (
-            <div key={message.id} className={`p-3 rounded-lg max-w-xs ${message.sender === 'test' ? 'bg-blue-500 text-white self-end' : 'bg-gray-300 self-start'}`}>
+          {allMessages.map((message) => (
+            <div key={message.id} className={`p-3 rounded-lg max-w-xs ${message.authorId === authUser?.id ? 'bg-blue-500 text-white self-end' : 'bg-gray-300 self-start'}`}>
               {message.content}
             </div>
           ))}

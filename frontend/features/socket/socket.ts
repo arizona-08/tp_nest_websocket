@@ -1,5 +1,9 @@
 import { io, Socket } from "socket.io-client";
 
+export type MessageData = {
+  content: string;
+  authorId: string;
+}
 export class MessageSocketService {
   private socket: Socket | null = null;
   
@@ -15,8 +19,8 @@ export class MessageSocketService {
     }
   }
 
-  sendMessage(message: string, discussionId: string) {
-    this.socket?.emit('send_message', { content: message, discussionId });
+  sendMessage(dataToSend: MessageData, discussionId: string) {
+    this.socket?.emit('send_message', { ...dataToSend, discussionId });
   }
 
   onMessage(callback: (message: any) => void) {
