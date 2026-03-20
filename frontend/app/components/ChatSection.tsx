@@ -8,7 +8,7 @@ import { getDiscussion } from '@/features/discussion/get-my-discussions';
 import { formatDiscussionName } from '@/utils/discussion';
 import { useAuthStore } from '../stores/AuthStore';
 import { Message } from '@/types/message';
-import { set } from 'zod';
+import { formatTime } from '@/utils/date';
 
 
 function ChatSection() {
@@ -62,7 +62,7 @@ function ChatSection() {
           name: formatDiscussionName(fetchedDiscussion, authUser?.id || "")
         });
 
-        setAllMessages(fetchedDiscussion.messages); // Assuming messages are ordered from oldest to newest, we reverse them to display the newest at the bottom
+        setAllMessages(fetchedDiscussion.messages); 
       }
     }
 
@@ -85,6 +85,7 @@ function ChatSection() {
           {allMessages.map((message) => (
             <div key={message.id} className={`p-3 rounded-lg max-w-xs ${message.authorId === authUser?.id ? 'bg-blue-500 text-white self-end' : 'bg-gray-300 self-start'}`}>
               {message.content}
+              <p className="mt-1 text-xs text-gray-100/75 text-right">{formatTime(message.sendedAt)}</p>
             </div>
           ))}
       </div>

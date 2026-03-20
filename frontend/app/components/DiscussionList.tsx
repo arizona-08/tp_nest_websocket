@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { fetchMyDiscussions } from '@/features/discussion/get-my-discussions';
 import { useAuthStore } from '../stores/AuthStore';
 import { formatDiscussionName } from '@/utils/discussion';
+import { formatDate } from '@/utils/date';
 
 function DiscussionList() {
   const isDiscussionListOpen = useDiscussionListStore((state) => state.isDiscussionListOpen)
@@ -54,9 +55,12 @@ function DiscussionList() {
               }}
             >
               <CircleUserRound />
-              <div>
-                <p className="font-semibold">{discussionName}</p>
-                <p className="text-sm text-gray-500">{discussion.lastMessage}</p>
+              <div className="w-full">
+                <div className=" flex items-center justify-between">
+                  <p className="font-semibold">{discussionName}</p>
+                  <p className="text-xs text-gray-600">{formatDate(discussion.lastMessageAt)}</p>
+                </div>
+                <p className="text-sm text-gray-500">{discussion.messages[0].content}</p>
               </div>
             </div>
           )
