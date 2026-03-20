@@ -15,7 +15,7 @@ function CTA({ type, href, color, onClick, text }: CTAProps) {
   
   const bgClasses = {
     primary: "bg-black text-white",
-    secondary: "bg-white text-black border border-black",
+    secondary: "bg-white text-black border border-black hover:bg-black hover:text-white",
     danger: "bg-red-500 text-white border border-red-500"
   }
   const baseClass = "inline-block font-medium px-4 py-2 rounded transition-colors duration-300";

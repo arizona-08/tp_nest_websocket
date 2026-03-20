@@ -20,6 +20,10 @@ model User {
   usernameColor String @default("#000000")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  discussions DiscussionUsers[]
+  messages Message[]
+  reactions MessageReaction[]
 }
 
 model Session {
@@ -29,9 +33,48 @@ model Session {
   expiresAt DateTime
 }
 
-model Test {
-  id        String   @id @default(uuid())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Discussion {
+  id String @id @default(uuid())
+  type DiscussionType
+  name String?
+  lastMessageAt DateTime @default(now())
+  users DiscussionUsers[] 
+  messages Message[]
+}
+
+model DiscussionUsers {
+  discussionId String
+  userId String
+
+  discussion Discussion @relation(fields: [discussionId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@id([discussionId, userId])
+}
+
+enum DiscussionType {
+  PRIVATE
+  GROUP
+}
+
+model Message {
+  id String @id @default(uuid())
+  authorId String
+  discussionId String
+  content String
+  sendedAt DateTime
+
+  author User @relation(fields: [authorId], references: [id] )
+  discussion Discussion @relation(fields: [discussionId], references: [id])
+  reactions MessageReaction[]
+}
+
+model MessageReaction {
+  id String @id @default(uuid())
+  messageId String
+  userId String
+  reaction String
+
+  message Message @relation(fields: [messageId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }

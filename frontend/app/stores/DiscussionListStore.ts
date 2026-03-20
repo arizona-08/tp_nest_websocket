@@ -2,13 +2,21 @@ import { create } from "zustand";
 
 interface DiscussionListState {
   isDiscussionListOpen: boolean;
-  activeDiscussionId: string | null;
+  activeDiscussion: {
+    id: string;
+    name: string;
+  }
+  setActiveDiscussion: (discussion: { id: string; name: string }) => void;
   open: () => void;
-  close: (discussionId: string) => void;
+  close: () => void;
 }
 export const useDiscussionListStore = create<DiscussionListState>()((set) => ({
   isDiscussionListOpen: false,
-  activeDiscussionId: null,
-  open: () => set({ isDiscussionListOpen: true, activeDiscussionId: null }),
-  close: (discussionId: string) => set({ isDiscussionListOpen: false, activeDiscussionId: discussionId }),
+  activeDiscussion: {
+    id: "",
+    name: ""
+  },
+  setActiveDiscussion: (discussion: { id: string; name: string }) => set({ activeDiscussion: discussion }),
+  open: () => set({ isDiscussionListOpen: true }),
+  close: () => set({ isDiscussionListOpen: false }),
 }))
