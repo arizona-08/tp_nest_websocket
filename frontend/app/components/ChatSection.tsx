@@ -25,6 +25,7 @@ function ChatSection() {
   const authUser = useAuthStore((state) => state.user);
 
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   function handleMessageChange(e: React.ChangeEvent<HTMLInputElement>) {
     setMessage(e.target.value);
@@ -72,6 +73,8 @@ function ChatSection() {
     }
   }
 
+  console.log("Active discussion in render:", activeDiscussion);
+
   useEffect(() => {
 
     if(!activeDiscussion) return;
@@ -106,7 +109,6 @@ function ChatSection() {
       if(activeDiscussion.id) {
         const response = await getDiscussion(activeDiscussion.id);
         const fetchedDiscussion = await response.json();
-        console.log("Active discussion:", fetchedDiscussion);
 
         setActiveDiscussion({
           id: fetchedDiscussion.id,
@@ -118,8 +120,17 @@ function ChatSection() {
     }
 
     fetchActiveDiscussion();
-    console.log("Active discussion ID:", activeDiscussion.id);
   }, [activeDiscussion.id])
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [allMessages]);
+
+  
 
   return (
     <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
@@ -145,6 +156,8 @@ function ChatSection() {
               <p className="mt-1 text-xs text-gray-100/75 text-right">{formatTime(message.sendedAt)}</p>
             </div>
           ))}
+
+          <div ref={messagesEndRef} />
       </div>
 
       <form className="p-4 bg-white border-t flex items-center gap-4">
