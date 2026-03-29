@@ -1,3 +1,4 @@
+import { MessageReaction } from "@/types/message";
 import { io, Socket } from "socket.io-client";
 
 export type MessageData = {
@@ -63,6 +64,25 @@ export class MessageSocketService {
     }
   }
 
+  addReaction(data: {
+    user: {
+      id: string,
+      username: string,
+    },
+    messageId: string,
+    emoji: string,
+    discussionId: string
+  }) {
+    this.socket?.emit('add_reaction', data);
+  }
+
+  onReactionAdded(callback: (data: MessageReaction) => void) {
+    this.socket?.on('reaction_added', callback);
+
+    return () => {
+      this.socket?.off('reaction_added', callback);
+    }
+  }
 
   disconnect() {
     this.socket?.disconnect();

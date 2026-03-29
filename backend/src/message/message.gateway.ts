@@ -55,5 +55,21 @@ export class MessageGateway {
     return data;
   }
 
+  @SubscribeMessage("add_reaction")
+  async addReaction(@MessageBody() data: {
+    user: {
+      id: string,
+      username: string,
+    }
+    messageId: string;
+    emoji: string;
+    discussionId: string }, 
+    @ConnectedSocket() client: Socket
+  ) {
+    const reaction =await this.messageService.addReaction(data.messageId, data.user.id, data.emoji);
+    client.to(data.discussionId).emit("reaction_added", reaction);
+    return data;
+  }
+
   
 }

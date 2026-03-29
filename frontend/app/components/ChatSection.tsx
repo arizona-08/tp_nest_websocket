@@ -10,6 +10,7 @@ import { useAuthStore } from '../stores/AuthStore';
 import { Message } from '@/types/message';
 import { formatTime } from '@/utils/date';
 import { set } from 'zod';
+import ReactionSlot from './ReactionSlot';
 
 
 function ChatSection() {
@@ -55,6 +56,11 @@ function ChatSection() {
       const dataToSend = {
         content: message,
         authorId: authUser?.id || "",
+        author: {
+          id: authUser?.id || "",
+          username: authUser?.username || "Unknown",
+        },
+        reactions: [],
       }
 
       messageSocketService.sendMessage(dataToSend, activeDiscussion.id);
@@ -73,7 +79,44 @@ function ChatSection() {
     }
   }
 
-  console.log("Active discussion in render:", activeDiscussion);
+  async function handleAddReaction(messageId: string, emoji: string){
+    const user = {
+      id: authUser?.id || "",
+      username: authUser?.username || "Unknown",
+    }
+
+    messageSocketService.addReaction({
+      user,
+      messageId,
+      emoji,
+      discussionId: activeDiscussion.id
+    })
+
+    setAllMessages((prevMessages) => prevMessages.map((msg) => {
+      if(msg.id === messageId) {
+        const existingReactions = msg.reactions || [];
+        const hasReacted = existingReactions.some((reaction) => reaction.user.id === user.id && reaction.reaction === emoji);
+
+        if (!hasReacted) {
+          return {
+            ...msg,
+            reactions: [
+              ...existingReactions,
+              { 
+                id: `temp-${Date.now()}`,
+                user,
+                reaction: emoji,
+                messageId: msg.id
+              }
+            ]
+          }
+        }
+      }
+      return msg;
+    }))
+
+  }
+
 
   useEffect(() => {
 
@@ -95,10 +138,36 @@ function ChatSection() {
       setUsersTyping((prev) => prev.filter((username) => username !== data.username));
     });
 
+    const unsubscribeOnReactionAdded = messageSocketService.onReactionAdded((data) => {
+      setAllMessages((prevMessages) => prevMessages.map((msg) => {
+        if (msg.id === data.messageId) {
+          const existingReactions = msg.reactions || [];
+          const hasReacted = existingReactions.some((reaction) => reaction.user.id === data.user.id && reaction.reaction === data.reaction);
+
+          if (!hasReacted) {
+            return {
+              ...msg,
+              reactions: [
+                ...existingReactions,
+                { 
+                  id: data.id,
+                  user: data.user,
+                  reaction: data.reaction,
+                  messageId: msg.id
+                }
+              ]
+            }
+          }
+        }
+        return msg;
+      }));
+    });
+
     return () => {
       unsubscribeOnMessage();
       unsubscribeOnUserTyping();
       unsubscribeOnUserStopTyping();
+      unsubscribeOnReactionAdded();
       messageSocketService.leaveDiscussion(activeDiscussion.id);
       messageSocketService.disconnect();
     };
@@ -146,16 +215,29 @@ function ChatSection() {
         )}
       </div>
 
-      <div className="flex flex-col flex-1 overflow-y-auto p-6 space-y-4">
-          {allMessages.map((message) => (
-            <div key={message.id} className={`p-3 rounded-lg max-w-xs ${message.authorId === authUser?.id ? 'bg-blue-500 text-white self-end' : 'bg-gray-300 self-start'}`}>
-              <p className={`text-xs mb-1 font-semibold ${message.authorId === authUser?.id ? 'text-white/80' : 'text-gray-700'}`} style={{ color: message.authorId === authUser?.id ? (authUser?.usernameColor) : (message.author?.usernameColor) }}>
-                {message.authorId === authUser?.id ? "" : (message.author?.username || "Utilisateur")}
-              </p>
-              {message.content}
-              <p className="mt-1 text-xs text-gray-100/75 text-right">{formatTime(message.sendedAt)}</p>
-            </div>
-          ))}
+      
+      <div className="flex flex-col flex-1 overflow-y-auto p-6 space-y-5">
+          {allMessages.map((message) => 
+            {
+              const isOwnMessage = message.authorId === authUser?.id;
+              return (
+                <div key={message.id} className={`relative p-3 rounded-lg max-w-xs ${isOwnMessage ? 'bg-blue-500 text-white self-end' : 'bg-gray-300 self-start'}`}>
+                  <p className={`text-xs mb-1 font-semibold ${message.authorId === authUser?.id ? 'text-white/80' : 'text-gray-700'}`} style={{ color: message.authorId === authUser?.id ? (authUser?.usernameColor) : (message.author?.usernameColor) }}>
+                    {message.authorId === authUser?.id ? "" : (message.author?.username || "Utilisateur")}
+                  </p>
+                  {message.content}
+                  <p className="mt-1 text-xs text-gray-100/75 text-right">{formatTime(message.sendedAt)}</p>
+                  <ReactionSlot
+                    authUser={authUser}
+                    messageId={message.id}
+                    isOwnMessage={isOwnMessage}
+                    onAddReaction={handleAddReaction}
+                    reactions={message.reactions}
+                  />
+                </div>
+              )
+            })
+          }
 
           <div ref={messagesEndRef} />
       </div>
