@@ -35,7 +35,6 @@ function AppSidebar() {
       <div className="lg:hidden">
         <BurgerMenu />
       </div>
-      {/* mobile nav */}
       <nav className={`absolute top-full left-0 w-full bg-gray-700 px-4 lg:static lg:w-auto lg:bg-transparent lg:p-0 ${isBurgerMenuOpen ? 'h-fit py-4' : 'h-0 overflow-hidden py-0'} transition-all duration-300 lg:h-auto lg:hidden`}>
         <ul className="space-y-2">
           {navLinks.map((link) => (
@@ -48,7 +47,6 @@ function AppSidebar() {
         </ul>
       </nav>
 
-      {/* desktop nav */}
       <nav className="hidden lg:flex lg:flex-col lg:justify-between lg:flex-1 mt-4 w-full">
         <div className="w-full">
           <ul className="space-y-2">

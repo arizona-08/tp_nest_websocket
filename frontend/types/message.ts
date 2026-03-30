@@ -4,4 +4,9 @@ export type Message = {
   authorId: string;
   discussionId: string;
   sendedAt: string;
+  author?: {
+    id: string;
+    username: string;
+    usernameColor: string;
+  }
 }

@@ -92,8 +92,8 @@ function ProfileForm() {
             {...register("usernameColor")}
             onChange={(event) => {
               const newColorValue = event.target.value;
-              setUsernameColor(newColorValue); // Met à jour le style visuel
-              setValue("usernameColor", newColorValue); // Met à jour les données du formulaire
+              setUsernameColor(newColorValue); 
+              setValue("usernameColor", newColorValue); 
             }}
           />
           {errors && errors.usernameColor && <p className="text-red-500 my-2">{errors.usernameColor.message}</p>}
@@ -106,8 +106,8 @@ function ProfileForm() {
                 <HexColorPicker 
                   color={field.value} 
                   onChange={(newColor) => {
-                    field.onChange(newColor); // 1. Met à jour React Hook Form
-                    setUsernameColor(newColor); // 2. Met à jour votre useState pour le style
+                    field.onChange(newColor); 
+                    setUsernameColor(newColor); 
                   }} 
                 />
                 <div 
@@ -117,7 +117,6 @@ function ProfileForm() {
               </div>
             )}
           />
-          {/* <HexColorPicker color={usernameColor} onChange={setUsernameColor} /> */}
         </div>
       </div>
       

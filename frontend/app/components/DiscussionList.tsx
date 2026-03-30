@@ -9,6 +9,7 @@ import { fetchMyDiscussions } from '@/features/discussion/get-my-discussions';
 import { useAuthStore } from '../stores/AuthStore';
 import { formatDiscussionName } from '@/utils/discussion';
 import { formatDate } from '@/utils/date';
+import { useSearchParams } from 'next/navigation';
 
 function DiscussionList() {
   const isDiscussionListOpen = useDiscussionListStore((state) => state.isDiscussionListOpen)
@@ -17,13 +18,21 @@ function DiscussionList() {
   const authUser = useAuthStore((state) => state.user);
   const activeDiscussion = useDiscussionListStore((state) => state.activeDiscussion);
   const setActiveDiscussion = useDiscussionListStore((state) => state.setActiveDiscussion);
+  const searchParams = useSearchParams();
+  const typeParam = searchParams.get("type");
+
+  
 
   const [discussions, setDiscussions] = useState<Discussion[]>([]);
+
+  const filteredDiscussions = discussions.filter((discussion) => {
+    if(typeParam === "groups") return discussion.type === "GROUP";
+    return discussion.type === "PRIVATE";
+  });
  
   const getMydiscussions = async () => {
     const response = await fetchMyDiscussions();
     const result = await response.json();
-    // console.log("My discussions:", result);
     setDiscussions(result);
     setActiveDiscussion(result.length > 0 ? { id: result[0].id, name: result[0].name } : { id: "", name: "" }); // Set the first discussion as active by default
   };
@@ -39,9 +48,8 @@ function DiscussionList() {
         <h2>Message</h2>
         <UserPlus className="w-10 h-10 p-2 hover:bg-gray-100 rounded-md" onClick={openAddUserModal}/>
       </div>
-      {/* Boucle sur vos discussions ici */}
       <div className="flex-1">
-        {discussions.map((discussion) => {
+        {filteredDiscussions.map((discussion) => {
           const discussionName = formatDiscussionName(discussion, authUser?.id || "");
 
           return (
@@ -71,8 +79,6 @@ function DiscussionList() {
             </div>
           )
         })}
-
-          {/* Composant DiscussionItem... */}
       </div>
     </aside>
   )

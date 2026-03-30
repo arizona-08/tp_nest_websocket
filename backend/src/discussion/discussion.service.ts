@@ -41,16 +41,19 @@ export class DiscussionService {
     return discussion;
   }
 
-  async createGroupDiscussion(authUserId: string, {name, userIds}: CreateGroupDiscussionDto) {
+  async createGroupDiscussion(authUserId: string, {name, userIds, historyMode}: CreateGroupDiscussionDto) {
+    const memberIds = Array.from(new Set([...userIds, authUserId]));
+
     const discussion = await this.prismaService.discussion.create({
       data: {
         type: "GROUP",
-        name,
+        name: name.trim(),
         users: {
-          create: userIds.map((userId) => ({
+          create: memberIds.map((userId) => ({
             user: {
               connect: { id: userId }
-            }
+            },
+            canSeeOldMessages: userId === authUserId ? true : historyMode === "all"
           }))
         }
       },
@@ -85,7 +88,8 @@ export class DiscussionService {
             author: {
               select: {
                 id: true,
-                username: true
+                username: true,
+                usernameColor: true
               }
             }
           }
@@ -97,6 +101,19 @@ export class DiscussionService {
   }
 
   async getDiscussion(discussionId: string, userId: string) {
+    const discussionUser = await this.prismaService.discussionUsers.findUnique({
+      where: {
+        discussionId_userId: {
+          discussionId,
+          userId
+        }
+      }
+    });
+
+    if (!discussionUser) {
+      return null;
+    }
+
     const discussion = await this.prismaService.discussion.findUnique({
       where: { 
         id: discussionId,
@@ -117,11 +134,15 @@ export class DiscussionService {
         },
 
         messages: {
+          where: discussionUser.canSeeOldMessages 
+          ? undefined
+          : { sendedAt: { gte: discussionUser.joinedAt } },
           orderBy: { sendedAt: "asc" },
           include: { author: {
             select: {
               id: true,
-              username: true
+              username: true,
+              usernameColor: true
             }
           } } 
         }

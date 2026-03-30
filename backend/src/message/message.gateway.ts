@@ -30,8 +30,8 @@ export class MessageGateway {
   async sendMessage(@MessageBody() data: any, @ConnectedSocket() client: Socket){
     try{
       const savedMessage = await this.messageService.saveMessage(data.discussionId, data.authorId, data.content);
-      client.to(data.discussionId).emit('receive_message', {...data, id: savedMessage.id, sendedAt: savedMessage.sendedAt});
-      return data;
+      client.to(data.discussionId).emit('receive_message', {...data, id: savedMessage.id, content: savedMessage.content, authorId: savedMessage.authorId, discussionId: savedMessage.discussionId, sendedAt: savedMessage.sendedAt, author: savedMessage.author });
+      return savedMessage;
     } catch (error) {
       console.error("Error sending message:", error);
     }

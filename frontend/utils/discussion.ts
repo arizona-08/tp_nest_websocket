@@ -5,5 +5,5 @@ export function formatDiscussionName(discussion: Discussion, authUserId: string)
     const otherUser = discussion.users.find((user) => user.userId !== authUserId);
     return otherUser ? otherUser.user.username : "Unknown User";
   }
-  return discussion.name;
+  return discussion.name || "Groupe sans nom";
 }

@@ -3,7 +3,7 @@ import { Message } from "./message";
 export type Discussion = {
   id: string;
   type: "PRIVATE" | "GROUP";
-  name: string;
+  name: string | null;
   lastMessageAt: string;
   messages: Message[];
   users: DiscussionUser[];

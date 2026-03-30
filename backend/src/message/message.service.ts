@@ -5,14 +5,36 @@ import { PrismaService } from "src/prisma.service";
 export class MessageService {
   constructor (private readonly prismaService: PrismaService) {}
 
+  private async assertUserInDiscussion(userId: string, discussionId: string) {
+    const membership = await this.prismaService.discussionUsers.findUnique({
+      where: {
+        discussionId_userId: {
+          discussionId,
+          userId
+        }
+      }
+    });
+  }
+
   async saveMessage(discussionId: string, authorId: string, content: string) {
     try{
+
+      await this.assertUserInDiscussion(authorId, discussionId);  
       const message = await this.prismaService.message.create({
         data: {
           content,
           authorId,
           discussionId,
           sendedAt: new Date()
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              username: true,
+              usernameColor: true
+            }
+          }
         }
       })
   
