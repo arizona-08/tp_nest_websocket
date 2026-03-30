@@ -20,7 +20,7 @@ export class DiscussionController {
     const authUserId = req.session.user.id;
     return this.discussionService.createGroupDiscussion(authUserId, createGroupDiscussionDto);
   }
-
+  
   @Get('me')
   async getUserDiscussions(@Req() req: any) {
     const authUserId = req.session.user.id;

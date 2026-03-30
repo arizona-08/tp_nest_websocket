@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "DiscussionUsers" ADD COLUMN     "canSeeOldMessages" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "joinedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
