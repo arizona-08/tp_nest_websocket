@@ -58,9 +58,15 @@ function DiscussionList() {
               <div className="w-full">
                 <div className=" flex items-center justify-between">
                   <p className="font-semibold">{discussionName}</p>
-                  <p className="text-xs text-gray-600">{formatDate(discussion.lastMessageAt)}</p>
+                  { discussion.messages.length > 0 ? (
+                    <p className="text-xs text-gray-600">{formatDate(discussion.lastMessageAt)}</p>
+                  ) : null }
                 </div>
-                <p className="text-sm text-gray-500">{discussion.messages[0].content}</p>
+                {discussion.messages.length > 0 ? (
+                  <p className="text-sm text-gray-500">{discussion.messages[0].content}</p>
+                ) : (
+                  <p>Aucun message pour le moment</p>
+                ) }
               </div>
             </div>
           )
