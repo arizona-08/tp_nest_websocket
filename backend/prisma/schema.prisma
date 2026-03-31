@@ -45,6 +45,8 @@ model Discussion {
 model DiscussionUsers {
   discussionId String
   userId String
+  joinedAt DateTime @default(now())
+  canSeeOldMessages Boolean @default(true)
 
   discussion Discussion @relation(fields: [discussionId], references: [id])
   user User @relation(fields: [userId], references: [id])
