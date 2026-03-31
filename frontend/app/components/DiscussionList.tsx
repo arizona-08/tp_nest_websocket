@@ -19,19 +19,18 @@ function DiscussionList() {
   const activeDiscussion = useDiscussionListStore((state) => state.activeDiscussion);
   const setActiveDiscussion = useDiscussionListStore((state) => state.setActiveDiscussion);
   const searchParams = useSearchParams();
-  const typeParam = searchParams.get("type");
+  const typeQuery = searchParams.get("type");
 
   
-
   const [discussions, setDiscussions] = useState<Discussion[]>([]);
 
   const filteredDiscussions = discussions.filter((discussion) => {
-    if(typeParam === "groups") return discussion.type === "GROUP";
+    if(typeQuery === "groups") return discussion.type === "GROUP";
     return discussion.type === "PRIVATE";
   });
  
   const getMydiscussions = async () => {
-    const response = await fetchMyDiscussions();
+    const response = await fetchMyDiscussions(typeQuery || "messages");
     const result = await response.json();
     setDiscussions(result);
     setActiveDiscussion(result.length > 0 ? { id: result[0].id, name: result[0].name } : { id: "", name: "" }); // Set the first discussion as active by default
