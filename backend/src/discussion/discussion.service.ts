@@ -63,12 +63,13 @@ export class DiscussionService {
     return discussion;
   }
 
-  async getUserDiscussions(authUserId: string) {
+  async getUserDiscussions(authUserId: string, type: "PRIVATE" | "GROUP") {
     const discussions = await this.prismaService.discussion.findMany({
       where: {
         users: {
           some: { userId: authUserId }
-        }
+        },
+        type: type
       },
       include: {
         users: {
