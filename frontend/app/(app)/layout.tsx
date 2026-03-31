@@ -16,7 +16,7 @@ function AppLayout({ children }: AppLayoutProps) {
       const response = await me();
       if(response.ok){
         const data = await response.json();
-        console.log("Authenticated user:", data.user);
+        // console.log("Authenticated user:", data.user);
         setUser(data.user);
       } else {
         console.log("No authenticated user");

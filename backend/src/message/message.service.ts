@@ -44,16 +44,32 @@ export class MessageService {
     }
   }
 
-  // async getMessagesByDiscussionId(discussionId: string) {
-  //   try {
-  //     const messages = await this.prismaService.message.findMany({
-  //       where: { discussionId },
-  //       orderBy: { sendedAt: 'asc' }
-  //     });
+  async addReaction(messageId: string, userId: string, emoji: string) {
+    try {
+      const reaction = await this.prismaService.messageReaction.create({
+        data: {
+          messageId,
+          userId,
+          reaction: emoji
+        },
 
-  //     return messages;
-  //   } catch (error) {
-  //     throw new InternalServerErrorException("Failed to retrieve messages", error.message);
-  //   }
-  // }
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true
+            }
+          }
+        }
+      });
+
+      return {
+        ...reaction
+      };
+    } catch (error) {
+      console.error("Error adding reaction:", error);
+      throw new InternalServerErrorException("Failed to add reaction", error);
+    }
+  }
+
 }

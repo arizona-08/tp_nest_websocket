@@ -138,13 +138,24 @@ export class DiscussionService {
           ? undefined
           : { sendedAt: { gte: discussionUser.joinedAt } },
           orderBy: { sendedAt: "asc" },
-          include: { author: {
-            select: {
-              id: true,
-              username: true,
-              usernameColor: true
+          include: { 
+            author: {
+              select: {
+                id: true,
+                username: true
+              }
+            },
+            reactions: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    username: true
+                  }
+                }
+              }
             }
-          } } 
+          } 
         }
       }
     });
