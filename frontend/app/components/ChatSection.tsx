@@ -237,7 +237,9 @@ function ChatSection() {
     scrollToBottom();
   }, [allMessages]);
 
+  console.log(authUser)
   
+  console.log(allMessages)
 
   return (
     <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
@@ -260,7 +262,7 @@ function ChatSection() {
               const isOwnMessage = message.authorId === authUser?.id;
               return (
                 <div key={message.id} className={`relative p-3 rounded-lg max-w-xs ${isOwnMessage ? 'bg-blue-500 text-white self-end' : 'bg-gray-300 self-start'}`}>
-                  <p className={`text-xs mb-1 font-semibold ${message.authorId === authUser?.id ? 'text-white/80' : 'text-gray-700'}`} style={{ color: message.authorId === authUser?.id ? (authUser?.usernameColor) : (message.author?.usernameColor) }}>
+                  <p className={`text-xs mb-1 font-semibold `} style={{ color: message.authorId === authUser?.id ? (authUser?.usernameColor) : (message.author?.usernameColor) }}>
                     {message.authorId === authUser?.id ? "" : (message.author?.username || "Utilisateur")}
                   </p>
                   {message.content}
