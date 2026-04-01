@@ -6,8 +6,8 @@ import Link from 'next/link'
 
 function AppSidebar() {
   const navLinks = [
-    { name: 'Messages', href: '/chat?type=messages' },
-    { name: 'Groupes', href: '/chat?type=groups' },
+    { name: 'Messages', href: '/chat?type=private' },
+    { name: 'Groupes', href: '/chat?type=group' },
     { name: 'Profile', href: '/profile' },
   ]
 
@@ -35,8 +35,7 @@ function AppSidebar() {
       <div className="lg:hidden">
         <BurgerMenu />
       </div>
-      {/* mobile nav */}
-      <nav className={`absolute top-full left-0 w-full bg-gray-700 px-4 lg:static lg:w-auto lg:bg-transparent lg:p-0 ${isBurgerMenuOpen ? 'h-fit py-4' : 'h-0 overflow-hidden py-0'} transition-all duration-300 lg:h-auto lg:hidden`}>
+      <nav className={`absolute top-full z-30 left-0 w-full bg-gray-700 px-4 lg:static lg:w-auto lg:bg-transparent lg:p-0 ${isBurgerMenuOpen ? 'h-fit py-4' : 'h-0 overflow-hidden py-0'} transition-all duration-300 lg:h-auto lg:hidden`}>
         <ul className="space-y-2">
           {navLinks.map((link) => (
             <li key={link.href}>
@@ -48,12 +47,11 @@ function AppSidebar() {
         </ul>
       </nav>
 
-      {/* desktop nav */}
       <nav className="hidden lg:flex lg:flex-col lg:justify-between lg:flex-1 mt-4 w-full">
         <div className="w-full">
           <ul className="space-y-2">
-            <li><Link href="/chat?type=messages" className="flex gap-2 hover:bg-gray-600 p-2 rounded "><MessageCircle/> Messages</Link></li>
-            <li><Link href="/chat?type=groups" className="flex gap-2 hover:bg-gray-600 p-2 rounded "><Users /> Groupes</Link></li>
+            <li><Link href="/chat?type=private" className="flex gap-2 hover:bg-gray-600 p-2 rounded "><MessageCircle/> Messages</Link></li>
+            <li><Link href="/chat?type=group" className="flex gap-2 hover:bg-gray-600 p-2 rounded "><Users /> Groupes</Link></li>
             
           </ul>
         </div>

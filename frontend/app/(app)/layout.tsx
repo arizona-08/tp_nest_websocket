@@ -16,7 +16,7 @@ function AppLayout({ children }: AppLayoutProps) {
       const response = await me();
       if(response.ok){
         const data = await response.json();
-        console.log("Authenticated user:", data.user);
+        // console.log("Authenticated user:", data.user);
         setUser(data.user);
       } else {
         console.log("No authenticated user");
@@ -28,10 +28,8 @@ function AppLayout({ children }: AppLayoutProps) {
   return (
     <>
       <div className="flex flex-col lg:flex-row h-screen">
-        {/* sidebar container */}
         <AppSidebar />
 
-        {/* main container */}
         <main className="flex overflow-hidden flex-1 w-full h-screen overflow-y-scroll">
           {children}
         </main>
