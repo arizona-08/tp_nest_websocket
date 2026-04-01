@@ -28,7 +28,7 @@ function LoginForm() {
       const responseData = await response.json();
       console.log("Login successful:", responseData);
       setUser(responseData.user);
-      router.push("/chat?type=messages");
+      router.push("/chat?type=private");
     } else {
       console.log("Login failed");
     }

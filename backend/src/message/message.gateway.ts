@@ -71,5 +71,20 @@ export class MessageGateway {
     return data;
   }
 
+  @SubscribeMessage("remove_reaction")
+  async removeReaction(@MessageBody() data: {
+    user: {
+      id: string,
+      username: string,
+    }
+    messageId: string;
+    emoji: string;
+    discussionId: string }, 
+    @ConnectedSocket() client: Socket
+  ) {
+    const reaction =await this.messageService.removeReaction(data.messageId, data.user.id, data.emoji);
+    client.to(data.discussionId).emit("reaction_removed", reaction);
+    return data;
+  }
   
 }

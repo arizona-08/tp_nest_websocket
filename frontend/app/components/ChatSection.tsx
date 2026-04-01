@@ -80,24 +80,47 @@ function ChatSection() {
   }
 
   async function handleAddReaction(messageId: string, emoji: string){
+    const message = allMessages.find((msg) => msg.id === messageId);
+    const existingReactions = message?.reactions || [];
+    const hasReacted = existingReactions.some((reaction) => reaction.user.id === authUser?.id && reaction.reaction === emoji);
+
     const user = {
       id: authUser?.id || "",
       username: authUser?.username || "Unknown",
     }
 
-    messageSocketService.addReaction({
-      user,
-      messageId,
-      emoji,
-      discussionId: activeDiscussion.id
-    })
+    if(hasReacted) {
+      const reactionToRemove = existingReactions.find((reaction) => reaction.user.id === authUser?.id && reaction.reaction === emoji);
+      const reactionId = reactionToRemove?.id || "";
+      messageSocketService.removeReaction({
+        user,
+        messageId,
+        emoji,
+        discussionId: activeDiscussion.id
+      })
 
-    setAllMessages((prevMessages) => prevMessages.map((msg) => {
-      if(msg.id === messageId) {
-        const existingReactions = msg.reactions || [];
-        const hasReacted = existingReactions.some((reaction) => reaction.user.id === user.id && reaction.reaction === emoji);
+      setAllMessages((prevMessages) => prevMessages.map((msg) => {
+        if(msg.id === messageId) {
+          const existingReactions = msg.reactions || [];
+          return {
+            ...msg,
+            reactions: existingReactions.filter((reaction) => !(reaction.id === reactionId))
+          }
+        }
+        return msg;
+      }))
+    } else {
+      messageSocketService.addReaction({
+        user,
+        messageId,
+        emoji,
+        discussionId: activeDiscussion.id
+      })
 
-        if (!hasReacted) {
+      setAllMessages((prevMessages) => prevMessages.map((msg) => {
+        if(msg.id === messageId) {
+          const existingReactions = msg.reactions || [];
+
           return {
             ...msg,
             reactions: [
@@ -111,9 +134,9 @@ function ChatSection() {
             ]
           }
         }
-      }
-      return msg;
-    }))
+        return msg;
+      }))
+    }
 
   }
 
@@ -163,11 +186,26 @@ function ChatSection() {
       }));
     });
 
+    const unsubscribeOnReactionRemoved = messageSocketService.onReactionRemoved((data) => {
+      setAllMessages((prevMessages) => prevMessages.map((msg) => {
+        if (msg.id === data.messageId) {
+          const existingReactions = msg.reactions || [];
+          return {
+            ...msg,
+            reactions: existingReactions.filter((reaction) => !(reaction.user.id === data.user.id && reaction.reaction === data.reaction))
+          }
+        }
+        return msg;
+      }));
+    });
+
+
     return () => {
       unsubscribeOnMessage();
       unsubscribeOnUserTyping();
       unsubscribeOnUserStopTyping();
       unsubscribeOnReactionAdded();
+      unsubscribeOnReactionRemoved();
       messageSocketService.leaveDiscussion(activeDiscussion.id);
       messageSocketService.disconnect();
     };

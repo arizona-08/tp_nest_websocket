@@ -25,7 +25,7 @@ function DiscussionList() {
   const [discussions, setDiscussions] = useState<Discussion[]>([]);
 
   const filteredDiscussions = discussions.filter((discussion) => {
-    if(typeQuery === "groups") return discussion.type === "GROUP";
+    if(typeQuery === "group") return discussion.type === "GROUP";
     return discussion.type === "PRIVATE";
   });
  
