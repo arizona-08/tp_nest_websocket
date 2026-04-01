@@ -237,10 +237,6 @@ function ChatSection() {
     scrollToBottom();
   }, [allMessages]);
 
-  console.log(authUser)
-  
-  console.log(allMessages)
-
   return (
     <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
       <div className="h-16 border-b bg-white flex items-center gap-4 px-6">
