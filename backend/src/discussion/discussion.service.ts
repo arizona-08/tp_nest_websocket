@@ -143,7 +143,8 @@ export class DiscussionService {
             author: {
               select: {
                 id: true,
-                username: true
+                username: true,
+                usernameColor: true
               }
             },
             reactions: {

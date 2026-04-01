@@ -84,6 +84,26 @@ export class MessageSocketService {
     }
   }
 
+  removeReaction(data: {
+    user: {
+      id: string,
+      username: string,
+    },
+    messageId: string,
+    emoji: string,
+    discussionId: string
+  }) {
+    this.socket?.emit('remove_reaction', data);
+  }
+
+  onReactionRemoved(callback: (data: MessageReaction) => void) {
+    this.socket?.on('reaction_removed', callback);
+
+    return () => {
+      this.socket?.off('reaction_removed', callback);
+    }
+  }
+
   disconnect() {
     this.socket?.disconnect();
     this.socket = null;

@@ -35,7 +35,7 @@ function AppSidebar() {
       <div className="lg:hidden">
         <BurgerMenu />
       </div>
-      <nav className={`absolute top-full left-0 w-full bg-gray-700 px-4 lg:static lg:w-auto lg:bg-transparent lg:p-0 ${isBurgerMenuOpen ? 'h-fit py-4' : 'h-0 overflow-hidden py-0'} transition-all duration-300 lg:h-auto lg:hidden`}>
+      <nav className={`absolute top-full z-30 left-0 w-full bg-gray-700 px-4 lg:static lg:w-auto lg:bg-transparent lg:p-0 ${isBurgerMenuOpen ? 'h-fit py-4' : 'h-0 overflow-hidden py-0'} transition-all duration-300 lg:h-auto lg:hidden`}>
         <ul className="space-y-2">
           {navLinks.map((link) => (
             <li key={link.href}>

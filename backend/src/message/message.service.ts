@@ -72,4 +72,33 @@ export class MessageService {
     }
   }
 
+  async removeReaction(messageId: string, userId: string, emoji: string) {
+    try {
+      const reaction = await this.prismaService.messageReaction.delete({
+        where: {
+          userId_messageId_reaction: {
+            messageId,
+            userId,
+            reaction: emoji
+          }
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true
+            }
+          }
+        }
+      });
+
+      return {
+        ...reaction
+      };
+    } catch (error) {
+      console.error("Error removing reaction:", error);
+      throw new InternalServerErrorException("Failed to remove reaction", error);
+    }
+  }
+
 }

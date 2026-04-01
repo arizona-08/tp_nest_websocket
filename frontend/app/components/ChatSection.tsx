@@ -80,24 +80,47 @@ function ChatSection() {
   }
 
   async function handleAddReaction(messageId: string, emoji: string){
+    const message = allMessages.find((msg) => msg.id === messageId);
+    const existingReactions = message?.reactions || [];
+    const hasReacted = existingReactions.some((reaction) => reaction.user.id === authUser?.id && reaction.reaction === emoji);
+
     const user = {
       id: authUser?.id || "",
       username: authUser?.username || "Unknown",
     }
 
-    messageSocketService.addReaction({
-      user,
-      messageId,
-      emoji,
-      discussionId: activeDiscussion.id
-    })
+    if(hasReacted) {
+      const reactionToRemove = existingReactions.find((reaction) => reaction.user.id === authUser?.id && reaction.reaction === emoji);
+      const reactionId = reactionToRemove?.id || "";
+      messageSocketService.removeReaction({
+        user,
+        messageId,
+        emoji,
+        discussionId: activeDiscussion.id
+      })
 
-    setAllMessages((prevMessages) => prevMessages.map((msg) => {
-      if(msg.id === messageId) {
-        const existingReactions = msg.reactions || [];
-        const hasReacted = existingReactions.some((reaction) => reaction.user.id === user.id && reaction.reaction === emoji);
+      setAllMessages((prevMessages) => prevMessages.map((msg) => {
+        if(msg.id === messageId) {
+          const existingReactions = msg.reactions || [];
+          return {
+            ...msg,
+            reactions: existingReactions.filter((reaction) => !(reaction.id === reactionId))
+          }
+        }
+        return msg;
+      }))
+    } else {
+      messageSocketService.addReaction({
+        user,
+        messageId,
+        emoji,
+        discussionId: activeDiscussion.id
+      })
 
-        if (!hasReacted) {
+      setAllMessages((prevMessages) => prevMessages.map((msg) => {
+        if(msg.id === messageId) {
+          const existingReactions = msg.reactions || [];
+
           return {
             ...msg,
             reactions: [
@@ -111,9 +134,9 @@ function ChatSection() {
             ]
           }
         }
-      }
-      return msg;
-    }))
+        return msg;
+      }))
+    }
 
   }
 
@@ -163,11 +186,26 @@ function ChatSection() {
       }));
     });
 
+    const unsubscribeOnReactionRemoved = messageSocketService.onReactionRemoved((data) => {
+      setAllMessages((prevMessages) => prevMessages.map((msg) => {
+        if (msg.id === data.messageId) {
+          const existingReactions = msg.reactions || [];
+          return {
+            ...msg,
+            reactions: existingReactions.filter((reaction) => !(reaction.user.id === data.user.id && reaction.reaction === data.reaction))
+          }
+        }
+        return msg;
+      }));
+    });
+
+
     return () => {
       unsubscribeOnMessage();
       unsubscribeOnUserTyping();
       unsubscribeOnUserStopTyping();
       unsubscribeOnReactionAdded();
+      unsubscribeOnReactionRemoved();
       messageSocketService.leaveDiscussion(activeDiscussion.id);
       messageSocketService.disconnect();
     };
@@ -199,8 +237,6 @@ function ChatSection() {
     scrollToBottom();
   }, [allMessages]);
 
-  
-
   return (
     <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
       <div className="h-16 border-b bg-white flex items-center gap-4 px-6">
@@ -222,7 +258,7 @@ function ChatSection() {
               const isOwnMessage = message.authorId === authUser?.id;
               return (
                 <div key={message.id} className={`relative p-3 rounded-lg max-w-xs ${isOwnMessage ? 'bg-blue-500 text-white self-end' : 'bg-gray-300 self-start'}`}>
-                  <p className={`text-xs mb-1 font-semibold ${message.authorId === authUser?.id ? 'text-white/80' : 'text-gray-700'}`} style={{ color: message.authorId === authUser?.id ? (authUser?.usernameColor) : (message.author?.usernameColor) }}>
+                  <p className={`text-xs mb-1 font-semibold `} style={{ color: message.authorId === authUser?.id ? (authUser?.usernameColor) : (message.author?.usernameColor) }}>
                     {message.authorId === authUser?.id ? "" : (message.author?.username || "Utilisateur")}
                   </p>
                   {message.content}

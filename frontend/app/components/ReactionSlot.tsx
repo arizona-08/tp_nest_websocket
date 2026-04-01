@@ -15,9 +15,43 @@ interface ReactionSlotProps {
 
 const EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '🔥', '👏'];
 
+type ReactionWithCount = {
+  reaction: string;
+  count: number;
+  users: {
+    id: string;
+    username: string;
+  }[]
+}
+
 function ReactionSlot({ authUser, messageId, isOwnMessage, onAddReaction, reactions }: ReactionSlotProps) {
   const [isOpen, setIsOpen] = useState(false);
 
+  const reactionsWithCount: ReactionWithCount[] = [];
+
+  if(reactions){
+    reactions.forEach((baseReaction) => {
+      const isReactionIncluded = reactionsWithCount.find((reactWithcount) => reactWithcount.reaction === baseReaction.reaction);
+
+      if(!isReactionIncluded){
+        const reactionWithCount: ReactionWithCount = {
+          reaction: baseReaction.reaction,
+          count: 1,
+          users: [baseReaction.user]
+        }
+
+        reactionsWithCount.push(reactionWithCount);
+      } else {
+        reactionsWithCount.forEach((reactWithCount) => {
+          if(reactWithCount.reaction === baseReaction.reaction){
+            reactWithCount.count += 1;
+            reactWithCount.users.push(baseReaction.user);
+          }
+        })
+      }
+
+    })
+  }
 
   return (
     <div className={`absolute bottom-0 ${isOwnMessage ? 'right-0' : 'left-0'}`}>
@@ -33,11 +67,11 @@ function ReactionSlot({ authUser, messageId, isOwnMessage, onAddReaction, reacti
           </div>
         )}
 
-        {reactions.length > 0 && (
+        {reactionsWithCount.length > 0 && (
           <div className="flex items-center gap-1">
             <Plus className="w-4 h-4"/>
-            {reactions.map((reaction) => (
-              <span key={reaction.id} className="text-sm">{reaction.reaction}</span>
+            {reactionsWithCount.map((reaction) => (
+              <span key={reaction.reaction} className="text-sm">{reaction.reaction}</span>
             ))}
           </div>
         )}
@@ -50,31 +84,48 @@ function ReactionSlot({ authUser, messageId, isOwnMessage, onAddReaction, reacti
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
           
           <div className={`absolute z-20 -top-24 ${isOwnMessage ? 'right-0' : 'left-0'} flex gap-2 p-2 bg-gray-800 border border-gray-700 rounded-full shadow-xl animate-in fade-in zoom-in duration-200`}>
-            {EMOJIS.map((emoji) => (
-              <button
-                key={emoji}
-                onClick={() => {
-                  onAddReaction(messageId, emoji);
-                  setIsOpen(false);
-                }}
-                className="hover:scale-125 transition-transform text-lg px-1"
-              >
-                {emoji}
-              </button>
-            ))}
+            {EMOJIS.map((emoji) => {
+              let isEmojiSelected = reactions.find((r) => r.reaction === emoji && r.user.id === authUser?.id) !== undefined;
+              
+              return (
+                <button
+                  key={emoji}
+                  onClick={() => {
+                    onAddReaction(messageId, emoji);
+                    setIsOpen(false);
+                  }}
+                  className={`hover:scale-125 transition-transform text-lg px-1 ${isEmojiSelected ? 'bg-blue-500' : ''} rounded-full`}
+                >
+                  {emoji}
+                </button>
+              )
+            }
+            )}
           </div>
 
-          {reactions.length > 0 && (
-            <div className={`min-w-30 absolute top-12 ${isOwnMessage ? 'right-0' : 'left-0'} z-10 p-2 bg-gray-800 border border-gray-700 rounded-md text-white text-sm`} onClick={() => setIsOpen(false)}>
+          {reactionsWithCount.length > 0 && (
+            <div className={`min-w-30 max-w-50 w-full absolute -top-10 ${isOwnMessage ? 'right-full' : 'left-full'} z-10 p-2 bg-gray-800 border border-gray-700 rounded-md text-white text-sm`} onClick={() => setIsOpen(false)}>
               <p>Réactions</p>
 
-              <ul className="mt-2">
-                {reactions.map((reaction) => (
-                  <li key={reaction.id} className="flex items-center gap-2">
-                    <span className="text-lg">{reaction.reaction}</span>
-                    <span>1</span> {/* Ici on pourrait afficher le nombre de réactions pour chaque emoji */}
-                  </li>
-                ))}
+              <ul className="mt-2 space-y-3">
+                {reactionsWithCount.map((reactWithCount, index) => {
+                  
+
+                  return (
+                    <li key={index} className="">
+                      <div className="mb-1 flex items-center justify-between">
+                        <span className="text-lg">{reactWithCount.reaction}</span>
+                        <span>{reactWithCount.count}</span> {/* Ici on pourrait afficher le nombre de réactions pour chaque emoji */}
+                      </div>
+                      <ul className="space-y-0.5">
+                        {reactWithCount.users.map((user, index) => (
+                          <li key={index} className='text-right'>{user.username}</li>
+                        ))}
+                      </ul>
+                    </li>
+                  )
+                })
+              }
               </ul>
 
             </div>
