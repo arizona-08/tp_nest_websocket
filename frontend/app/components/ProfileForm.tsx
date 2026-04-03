@@ -50,7 +50,6 @@ function ProfileForm() {
     setBackendSuccessMessage(null);
     const response = await updateProfile(data);
     if(!response.ok){
-      console.error("Erreur lors de la mise à jour du profil");
       const data = await response.json();
       setBackendError(data.message);
       return;

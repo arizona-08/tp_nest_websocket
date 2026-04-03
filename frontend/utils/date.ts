@@ -9,7 +9,6 @@ export function formatTime(dateString: string): string {
 
   const date: Date = new Date(dateString);
   if (isNaN(date.getTime())) {
-    console.warn("Format de date non reconnu :", dateString);
     return "Heure invalide"; 
   }
 

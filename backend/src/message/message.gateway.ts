@@ -17,13 +17,11 @@ export class MessageGateway {
   @SubscribeMessage('join_discussion')
   handleJoinRoom(@MessageBody() discussionId: string, @ConnectedSocket() client: Socket) {
     client.join(discussionId);
-    console.log(`Le client ${client.id} a rejoint la discussion ${discussionId}`);
   }
 
   @SubscribeMessage('leave_discussion')
   handleLeaveRoom(@MessageBody() discussionId: string, @ConnectedSocket() client: Socket) {
     client.leave(discussionId);
-    console.log(`Le client ${client.id} a quitté la discussion ${discussionId}`);
   }
 
   @SubscribeMessage('send_message')
@@ -35,7 +33,6 @@ export class MessageGateway {
     } catch (error) {
       console.error("Error sending message:", error);
     }
-    
   }
 
   @SubscribeMessage('receive_message')
