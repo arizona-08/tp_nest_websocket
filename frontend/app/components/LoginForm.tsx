@@ -22,15 +22,11 @@ function LoginForm() {
   const router = useRouter();
 
   async function handleOnSubmit(data: LoginDto) {
-    console.log(data);
     const response = await loginUser(data);
     if(response.ok){
       const responseData = await response.json();
-      console.log("Login successful:", responseData);
       setUser(responseData.user);
       router.push("/chat?type=private");
-    } else {
-      console.log("Login failed");
     }
   }
 

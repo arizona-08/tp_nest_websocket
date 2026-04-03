@@ -55,7 +55,6 @@ function ReactionSlot({ authUser, messageId, isOwnMessage, onAddReaction, reacti
 
   return (
     <div className={`absolute bottom-0 ${isOwnMessage ? 'right-0' : 'left-0'}`}>
-      {/* Bouton déclencheur */}
       <div 
         onClick={() => setIsOpen(!isOpen)}
         className={`p-1 rounded-full bg-gray-600 hover:bg-gray-500 cursor-pointer text-gray-400 text-sm flex items-center gap-1 translate-y-4 transition-colors`}
@@ -77,10 +76,8 @@ function ReactionSlot({ authUser, messageId, isOwnMessage, onAddReaction, reacti
         )}
       </div>
 
-      {/* Menu de sélection des Emojis */}
       {isOpen && (
         <>
-          {/* Overlay invisible pour fermer en cliquant ailleurs */}
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
           
           <div className={`absolute z-20 -top-24 ${isOwnMessage ? 'right-0' : 'left-0'} flex gap-2 p-2 bg-gray-800 border border-gray-700 rounded-full shadow-xl animate-in fade-in zoom-in duration-200`}>
@@ -115,7 +112,7 @@ function ReactionSlot({ authUser, messageId, isOwnMessage, onAddReaction, reacti
                     <li key={index} className="">
                       <div className="mb-1 flex items-center justify-between">
                         <span className="text-lg">{reactWithCount.reaction}</span>
-                        <span>{reactWithCount.count}</span> {/* Ici on pourrait afficher le nombre de réactions pour chaque emoji */}
+                        <span>{reactWithCount.count}</span> 
                       </div>
                       <ul className="space-y-0.5">
                         {reactWithCount.users.map((user, index) => (

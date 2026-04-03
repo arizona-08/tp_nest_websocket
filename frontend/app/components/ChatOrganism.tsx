@@ -13,7 +13,7 @@ function ChatOrganism() {
         <ChatSection />
       ): (
         <div className="flex-1 flex items-center justify-center p-6 border-r border-r-gray-800">
-          <p className="text-gray-500">You have no active discussion</p>
+          <p className="text-gray-500">Tu n'as pas de discussion active</p>
         </div>
       )}
       

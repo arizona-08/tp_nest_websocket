@@ -22,10 +22,7 @@ function PasswordForm() {
     if(!response.ok){
       const error = await response.json();
       setBackendError(error.message);
-      console.error("Erreur lors du changement de mot de passe");
       return;
-    } else {
-      console.log("Mot de passe changé avec succès");
     }
   }
 
