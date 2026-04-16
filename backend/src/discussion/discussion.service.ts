@@ -7,6 +7,106 @@ import { CreateGroupDiscussionDto } from "./dtos/create-group.dto";
 export class DiscussionService {
   constructor(private readonly prismaService: PrismaService) {}
 
+  async createGeneralDiscussion(){
+    try{
+      const existingGeneralDiscussion = await this.prismaService.discussion.findFirst({
+        where: {
+          type: "GENERAL"
+        }
+      });
+
+      if(existingGeneralDiscussion){
+        console.log("General discussion already exists");
+        return;
+      }
+
+      await this.prismaService.discussion.create({
+        data: {
+          name: "General",
+          type: "GENERAL"
+        }
+      });
+
+      console.log("General discussion created");
+      return;
+    } catch (error: any) {
+      console.error("Error creating general discussion:", error);
+    }
+    
+  }
+
+  async getGeneralDiscussion(){
+    const generalDiscussion = await this.prismaService.discussion.findFirst({
+      where: {
+        type: "GENERAL"
+      },
+      include: {
+        messages: {
+          orderBy: { sendedAt: "asc" },
+          include: {
+            author: {
+              select: {
+                id: true,
+                username: true,
+                usernameColor: true
+              }
+            },
+
+            reactions: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    username: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    return generalDiscussion;
+  }
+
+  async AddUserToGeneralDiscussion(userId: string) {
+    const generalDiscussion = await this.prismaService.discussion.findFirst({
+      where: {
+        type: "GENERAL"
+      }
+    });
+
+    if(!generalDiscussion){
+      return null;
+    }
+
+    const existingMembership = await this.prismaService.discussionUsers.findUnique({
+      where: {
+        discussionId_userId: {
+          discussionId: generalDiscussion.id,
+          userId
+        }
+      }
+    });
+
+    if(!existingMembership){
+      const discussionUser = await this.prismaService.discussionUsers.create({
+        data: {
+          discussionId: generalDiscussion.id,
+          userId,
+          canSeeOldMessages: true
+        }
+      });
+
+      return discussionUser;
+    }
+
+    return
+    
+  }
+
+
   async createPrivateDiscussion(authUserId: string, { userId }: CreatePrivateDiscussionDto) {
 
     const existing = await this.prismaService.discussion.findFirst({
