@@ -68,17 +68,6 @@ function ChatSection() {
       }
 
       messageSocketService.sendMessage(dataToSend, activeDiscussion.id);
-      setAllMessages((prevMessages) => [
-        ...prevMessages, 
-        { ...dataToSend, id: `temp-${Date.now()}`, 
-        discussionId: activeDiscussion.id, 
-        sendedAt: new Date().toISOString(),
-        author: {
-          id: authUser?.id || "",
-          username: authUser?.username || "",
-          usernameColor: authUser?.usernameColor || ""
-        }
-      }]);
       setMessage("");
     }
   }
