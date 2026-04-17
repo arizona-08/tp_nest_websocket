@@ -4,17 +4,21 @@ import { ArrowLeft } from 'lucide-react'
 import { useDiscussionListStore } from '../stores/DiscussionListStore'
 import { useEffect, useRef, useState } from 'react';
 import { messageSocketService } from '@/features/socket/socket';
-import { getDiscussion } from '@/features/discussion/get-my-discussions';
+import { getDiscussion, getGeneralDiscussion } from '@/features/discussion/get-my-discussions';
 import { formatDiscussionName } from '@/utils/discussion';
 import { useAuthStore } from '../stores/AuthStore';
 import { Message } from '@/types/message';
 import { formatTime } from '@/utils/date';
 import { set } from 'zod';
 import ReactionSlot from './ReactionSlot';
+import { useSearchParams } from 'next/navigation';
 
 
 function ChatSection() {
 
+  const searchParams = useSearchParams();
+  const discussionTypeQuery = searchParams.get('type') || '';
+  console.log("discussionTypeQuery");
   const openDiscussionList = useDiscussionListStore((state) => state.open);
 
   const [message, setMessage] = useState<string>("");
@@ -215,19 +219,27 @@ function ChatSection() {
     async function fetchActiveDiscussion(){
       if(activeDiscussion.id) {
         const response = await getDiscussion(activeDiscussion.id);
-        const fetchedDiscussion = await response.json();
 
-        setActiveDiscussion({
-          id: fetchedDiscussion.id,
-          name: formatDiscussionName(fetchedDiscussion, authUser?.id || "")
-        });
-
-        setAllMessages(fetchedDiscussion.messages); 
+        if(response.ok) {
+          const fetchedDiscussion = await response.json();
+  
+          setActiveDiscussion({
+            id: fetchedDiscussion.id,
+            name: formatDiscussionName(fetchedDiscussion, authUser?.id || "")
+          });
+  
+          setAllMessages(fetchedDiscussion.messages); 
+        } else {
+          console.error("Failed to fetch discussion details");
+          console.log(response.status)
+        }
       }
     }
 
     fetchActiveDiscussion();
   }, [activeDiscussion.id])
+
+  
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

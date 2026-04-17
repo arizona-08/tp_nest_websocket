@@ -26,7 +26,7 @@ function LoginForm() {
     if(response.ok){
       const responseData = await response.json();
       setUser(responseData.user);
-      router.push("/chat?type=private");
+      router.push("/chat?type=general");
     }
   }
 

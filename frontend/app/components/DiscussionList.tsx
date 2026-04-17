@@ -5,7 +5,7 @@ import { CircleUserRound, UserPlus } from 'lucide-react';
 import AddUserModal from './AddUserModal';
 import { useAddUserModalStore } from '../stores/AddUserModal';
 import { useEffect, useState } from 'react';
-import { fetchMyDiscussions } from '@/features/discussion/get-my-discussions';
+import { fetchMyDiscussions, getGeneralDiscussion } from '@/features/discussion/get-my-discussions';
 import { useAuthStore } from '../stores/AuthStore';
 import { formatDiscussionName } from '@/utils/discussion';
 import { formatDate } from '@/utils/date';
@@ -37,8 +37,27 @@ function DiscussionList() {
   };
 
   useEffect(() => {
+    if(typeQuery === "general") return;
     getMydiscussions();
   }, [])
+
+  useEffect(() => {
+    if(typeQuery === "general") {
+      
+      const fetchGeneralDiscussion = async () => {
+        const response = await getGeneralDiscussion();
+        const generalDiscussion = await response.json();
+
+        setActiveDiscussion({
+          id: generalDiscussion.id,
+          name: generalDiscussion.name
+        });
+
+      }
+
+      fetchGeneralDiscussion();
+    }
+  }, [activeDiscussion.id])
 
   return (
     <aside className={`relative border-r border-gray-100 flex flex-col overflow-y-auto ${isDiscussionListOpen ? 'w-full' : 'w-0'} transition-all duration-300 md:w-1/3 lg:w-1/4`}>
