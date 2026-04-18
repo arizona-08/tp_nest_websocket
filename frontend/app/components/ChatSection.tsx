@@ -17,8 +17,8 @@ import { useSearchParams } from 'next/navigation';
 function ChatSection() {
 
   const searchParams = useSearchParams();
-  const discussionTypeQuery = searchParams.get('type') || '';
-  console.log("discussionTypeQuery");
+  const typeQuery = searchParams.get("type");
+
   const openDiscussionList = useDiscussionListStore((state) => state.open);
 
   const [message, setMessage] = useState<string>("");
@@ -65,6 +65,10 @@ function ChatSection() {
           username: authUser?.username || "Unknown",
         },
         reactions: [],
+      }
+
+      if(allMessages.length === 0 && typeQuery === "private" || typeQuery === "group") {
+        messageSocketService.createDiscussionOnFirstMessage(activeDiscussion.id);
       }
 
       messageSocketService.sendMessage(dataToSend, activeDiscussion.id);

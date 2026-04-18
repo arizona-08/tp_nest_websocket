@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 import { CreatePrivateDiscussionDto } from "./dtos/create-private.dto";
 import { CreateGroupDiscussionDto } from "./dtos/create-group.dto";
@@ -159,6 +159,34 @@ export class DiscussionService {
       },
       include: { users: true }
     })
+
+    return discussion;
+  }
+
+  async getDiscussionOnFirstMessage(discussionId: string) {
+    const discussion = await this.prismaService.discussion.findUnique({
+      where: { id: discussionId },
+      include: {
+        users: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true
+              }
+            }
+          }
+        },
+        messages: {
+          orderBy: { sendedAt: "desc" },
+          take: 1,
+        }
+      }
+    });
+
+    if(!discussion){
+      throw new BadRequestException("Discussion not found");
+    }
 
     return discussion;
   }
