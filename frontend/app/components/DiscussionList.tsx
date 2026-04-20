@@ -63,7 +63,8 @@ function DiscussionList() {
   useEffect(() => {
     if(!activeDiscussion) return;
     messageSocketService.connect();
-    messageSocketService.joinDiscussion(activeDiscussion.id);
+    messageSocketService.joinDiscussion(`user_${authUser?.id}`);
+    console.log(authUser)
 
     const unsubscribeOnDiscussionCreatedOnFirstMessage = messageSocketService.onDiscussionCreatedOnFirstMessage((discussionData) => {
       const discussion: Discussion = {
@@ -75,16 +76,19 @@ function DiscussionList() {
         messages: discussionData.messages,
       }
 
+      // If the discussion already exists in the list, we don't add it again
+      const discussionExists = discussions.some(d => d.id === discussion.id);
+      if(discussionExists) return;
       setDiscussions((prevDiscussions) => [discussion, ...prevDiscussions]);
-      setActiveDiscussion({ id: discussion.id, name: discussion.name as string });
+      
     });
 
     return () => {
       unsubscribeOnDiscussionCreatedOnFirstMessage();
-      messageSocketService.leaveDiscussion(activeDiscussion.id);
+      messageSocketService.leaveDiscussion(`user_${authUser?.id}`);
       messageSocketService.disconnect();
     }
-  }, [])
+  }, [authUser])
 
   return (
     <aside className={`relative border-r border-gray-100 flex flex-col overflow-y-auto ${isDiscussionListOpen ? 'w-full' : 'w-0'} transition-all duration-300 md:w-1/3 lg:w-1/4`}>

@@ -58,11 +58,21 @@ export class MessageGateway {
     return data;
   }
 
+  @SubscribeMessage('create_user_global_room')
+  async createUserGlobalRoom(@MessageBody() data: { userId: string }, @ConnectedSocket() client: Socket) {
+    client.join(`user_${data.userId}`);
+  }
+
   @SubscribeMessage('create_discussion_on_first_message')
-  async createDiscussionOnFirstMessage(@MessageBody() data: { discussionId: string }, @ConnectedSocket() client: Socket) {
+  async createDiscussionOnFirstMessage(@MessageBody() data: { discussionId: string, currentUserId: string }, @ConnectedSocket() client: Socket) {
     const discussion = await this.discussionService.getDiscussionOnFirstMessage(data.discussionId);
 
-    client.to(data.discussionId).emit('discussion_created_on_first_message', discussion);
+    discussion.users.forEach(user => {
+      if (user.user.id !== data.currentUserId) {
+        this.server.to(`user_${user.user.id}`).emit('discussion_created_on_first_message', discussion);
+      }
+    });
+
     return discussion;
   }
 
