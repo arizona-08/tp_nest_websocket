@@ -12,6 +12,8 @@ RUN npm install
 
 COPY --chown=node:node . .
 
+RUN chown -R node:node /app
+
 # La génération se fera avec les permissions de l'utilisateur node
 RUN npx prisma generate
 

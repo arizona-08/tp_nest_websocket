@@ -48,7 +48,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
 
     const {confirmation, ...userData} = registerDto;
-    return this.prisma.user.create({
+    const created = await this.prisma.user.create({
       data: {
         ...userData,
         password: hashedPassword,
@@ -61,6 +61,30 @@ export class AuthService {
         createdAt: true
       }
     });
+
+    // Automatically add the user to the general discussion
+    const generalDiscussion = await this.prisma.discussion.findFirst({
+      where: {
+        type: "GENERAL"
+      },
+
+      select: {
+        id: true
+      }
+    });
+
+    if(generalDiscussion) {
+      await this.prisma.discussionUsers.create({
+        data: {
+          userId: created.id,
+          discussionId: generalDiscussion.id,
+          canSeeOldMessages: true
+        }
+      })
+    }
+
+
+    return created;
   }
 
   async logout() {

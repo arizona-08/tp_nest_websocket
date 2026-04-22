@@ -20,14 +20,14 @@ async function bootstrap() {
       resave: false,
       saveUninitialized: false,
       cookie: {
-        maxAge: 1000 * 60 * 60 * 24, // 1 day
+        maxAge: 1000 * 60 * 60 * 24,
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
       },
       store: new PrismaSessionStore(
         prismaService,
         {
-          checkPeriod: 2 * 60 * 1000,  // Nettoie les sessions expirées toutes les 2 min
+          checkPeriod: 2 * 60 * 1000,  // nettoie les sessions expirées toutes les 2 min
           dbRecordIdIsSessionId: true,
         }
       ),

@@ -21,10 +21,8 @@ function RegisterForm() {
   });
 
   async function handleOnSubmit(data: RegisterDto) {
-    console.log(data);
     const response = await registerUser(data);
     if(!response.ok){
-      console.log("Erreur lors de l'inscription");
       const data = await response.json();
       if(data && data.message){
         setBackendError(data.message);

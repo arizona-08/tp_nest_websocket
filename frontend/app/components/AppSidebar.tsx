@@ -1,11 +1,12 @@
 'use client'
-import { Cloud, Home, LogOut, MessageCircle, User, Users } from 'lucide-react'
+import { Component, Home, MessageCircle, User, Users } from 'lucide-react'
 import BurgerMenu from './BurgerMenu'
 import { useBurgerMenuStore } from '../stores/BurgerMenuStore'
 import Link from 'next/link'
 
 function AppSidebar() {
   const navLinks = [
+    { name: 'General', href: '/chat?type=general' },
     { name: 'Messages', href: '/chat?type=private' },
     { name: 'Groupes', href: '/chat?type=group' },
     { name: 'Profile', href: '/profile' },
@@ -15,6 +16,8 @@ function AppSidebar() {
     switch (name) {
       case 'Home':
         return <Home />
+      case 'General':
+        return <Component />
       case 'Messages':
         return <MessageCircle />
       case 'Groupes':
@@ -50,6 +53,7 @@ function AppSidebar() {
       <nav className="hidden lg:flex lg:flex-col lg:justify-between lg:flex-1 mt-4 w-full">
         <div className="w-full">
           <ul className="space-y-2">
+            <li><Link href="/chat?type=general" className="flex gap-2 hover:bg-gray-600 p-2 rounded "><Component /> General</Link></li>
             <li><Link href="/chat?type=private" className="flex gap-2 hover:bg-gray-600 p-2 rounded "><MessageCircle/> Messages</Link></li>
             <li><Link href="/chat?type=group" className="flex gap-2 hover:bg-gray-600 p-2 rounded "><Users /> Groupes</Link></li>
             

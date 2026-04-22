@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 import { CreatePrivateDiscussionDto } from "./dtos/create-private.dto";
 import { CreateGroupDiscussionDto } from "./dtos/create-group.dto";
@@ -6,6 +6,106 @@ import { CreateGroupDiscussionDto } from "./dtos/create-group.dto";
 @Injectable()
 export class DiscussionService {
   constructor(private readonly prismaService: PrismaService) {}
+
+  async createGeneralDiscussion(){
+    try{
+      const existingGeneralDiscussion = await this.prismaService.discussion.findFirst({
+        where: {
+          type: "GENERAL"
+        }
+      });
+
+      if(existingGeneralDiscussion){
+        console.log("General discussion already exists");
+        return;
+      }
+
+      await this.prismaService.discussion.create({
+        data: {
+          name: "General",
+          type: "GENERAL"
+        }
+      });
+
+      console.log("General discussion created");
+      return;
+    } catch (error: any) {
+      console.error("Error creating general discussion:", error);
+    }
+    
+  }
+
+  async getGeneralDiscussion(){
+    const generalDiscussion = await this.prismaService.discussion.findFirst({
+      where: {
+        type: "GENERAL"
+      },
+      include: {
+        messages: {
+          orderBy: { sendedAt: "asc" },
+          include: {
+            author: {
+              select: {
+                id: true,
+                username: true,
+                usernameColor: true
+              }
+            },
+
+            reactions: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    username: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    return generalDiscussion;
+  }
+
+  async AddUserToGeneralDiscussion(userId: string) {
+    const generalDiscussion = await this.prismaService.discussion.findFirst({
+      where: {
+        type: "GENERAL"
+      }
+    });
+
+    if(!generalDiscussion){
+      return null;
+    }
+
+    const existingMembership = await this.prismaService.discussionUsers.findUnique({
+      where: {
+        discussionId_userId: {
+          discussionId: generalDiscussion.id,
+          userId
+        }
+      }
+    });
+
+    if(!existingMembership){
+      const discussionUser = await this.prismaService.discussionUsers.create({
+        data: {
+          discussionId: generalDiscussion.id,
+          userId,
+          canSeeOldMessages: true
+        }
+      });
+
+      return discussionUser;
+    }
+
+    return
+    
+  }
+
 
   async createPrivateDiscussion(authUserId: string, { userId }: CreatePrivateDiscussionDto) {
 
@@ -59,6 +159,34 @@ export class DiscussionService {
       },
       include: { users: true }
     })
+
+    return discussion;
+  }
+
+  async getDiscussionOnFirstMessage(discussionId: string) {
+    const discussion = await this.prismaService.discussion.findUnique({
+      where: { id: discussionId },
+      include: {
+        users: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true
+              }
+            }
+          }
+        },
+        messages: {
+          orderBy: { sendedAt: "desc" },
+          take: 1,
+        }
+      }
+    });
+
+    if(!discussion){
+      throw new BadRequestException("Discussion not found");
+    }
 
     return discussion;
   }

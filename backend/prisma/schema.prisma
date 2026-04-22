@@ -55,6 +55,7 @@ model DiscussionUsers {
 }
 
 enum DiscussionType {
+  GENERAL
   PRIVATE
   GROUP
 }
