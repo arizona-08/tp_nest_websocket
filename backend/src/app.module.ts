@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -8,6 +8,7 @@ import { ProfileModule } from './profile/profile.module';
 import { MessageModule } from './message/message.module';
 import { DiscussionModule } from './discussion/discussion.module';
 import { UserModule } from './users/user.module';
+import { DiscussionService } from './discussion/discussion.service';
 
 @Module({
   imports: [
@@ -25,4 +26,10 @@ import { UserModule } from './users/user.module';
   providers: [AppService],
  
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit {
+  constructor(private discussionService: DiscussionService) {}
+
+  async onModuleInit() {
+    await this.discussionService.createGeneralDiscussion();
+  }
+}

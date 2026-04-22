@@ -1,15 +1,16 @@
 'use client';
 import { Discussion } from '@/types/discussion';
 import { useDiscussionListStore } from '../stores/DiscussionListStore'
-import { CircleUserRound, UserPlus } from 'lucide-react';
+import { ArrowLeft, CircleUserRound, UserPlus } from 'lucide-react';
 import AddUserModal from './AddUserModal';
 import { useAddUserModalStore } from '../stores/AddUserModal';
 import { useEffect, useState } from 'react';
-import { fetchMyDiscussions } from '@/features/discussion/get-my-discussions';
+import { fetchMyDiscussions, getGeneralDiscussion } from '@/features/discussion/get-my-discussions';
 import { useAuthStore } from '../stores/AuthStore';
 import { formatDiscussionName } from '@/utils/discussion';
 import { formatDate } from '@/utils/date';
 import { useSearchParams } from 'next/navigation';
+import { messageSocketService } from '@/features/socket/socket';
 
 function DiscussionList() {
   const isDiscussionListOpen = useDiscussionListStore((state) => state.isDiscussionListOpen)
@@ -37,14 +38,66 @@ function DiscussionList() {
   };
 
   useEffect(() => {
+    if(typeQuery === "general") return;
     getMydiscussions();
-  }, [])
+  }, [typeQuery])
+
+  useEffect(() => {
+    if(typeQuery === "general") {
+      
+      const fetchGeneralDiscussion = async () => {
+        const response = await getGeneralDiscussion();
+        const generalDiscussion = await response.json();
+
+        setActiveDiscussion({
+          id: generalDiscussion.id,
+          name: generalDiscussion.name
+        });
+
+      }
+
+      fetchGeneralDiscussion();
+    }
+  }, [activeDiscussion.id])
+
+  useEffect(() => {
+    if(!authUser) return;
+    messageSocketService.connect();
+    messageSocketService.joinDiscussion(`user_${authUser.id}`);
+
+    const unsubscribeOnDiscussionCreatedOnFirstMessage = messageSocketService.onDiscussionCreatedOnFirstMessage((discussionData) => {
+      const discussion: Discussion = {
+        id: discussionData.id,
+        name: discussionData.name,
+        type: discussionData.type,
+        users: discussionData.users,
+        lastMessageAt: discussionData.lastMessageAt,
+        messages: discussionData.messages,
+      }
+
+      
+      setDiscussions((prevDiscussions) => {
+        const discussionExists = prevDiscussions.some(d => d.id === discussion.id);
+        if(discussionExists) return prevDiscussions;
+        return [discussion, ...prevDiscussions];
+      });
+      
+    });
+
+    return () => {
+      unsubscribeOnDiscussionCreatedOnFirstMessage();
+      messageSocketService.leaveDiscussion(`user_${authUser.id}`);
+    }
+  }, [authUser])
 
   return (
     <aside className={`relative border-r border-gray-100 flex flex-col overflow-y-auto ${isDiscussionListOpen ? 'w-full' : 'w-0'} transition-all duration-300 md:w-1/3 lg:w-1/4`}>
       <AddUserModal refetchDiscussions={getMydiscussions}/>
       <div className="p-4 font-bold text-xl sticky top-0 bg-white flex items-center justify-between">
-        <h2>Message</h2>
+        <div className="flex items-center gap-2" onClick={closeDiscussionList}>
+          <ArrowLeft className="md:hidden" />
+          <h2>Message</h2>
+        </div>
         <UserPlus className="w-10 h-10 p-2 hover:bg-gray-100 rounded-md" onClick={openAddUserModal}/>
       </div>
       <div className="flex-1">

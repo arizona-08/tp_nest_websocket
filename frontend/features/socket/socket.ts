@@ -1,3 +1,4 @@
+import { Discussion } from "@/types/discussion";
 import { MessageReaction } from "@/types/message";
 import { io, Socket } from "socket.io-client";
 
@@ -37,6 +38,18 @@ export class MessageSocketService {
 
     return () => {
       this.socket?.off('receive_message', callback);
+    }
+  }
+
+  createDiscussionOnFirstMessage(discussionId: string) {
+    this.socket?.emit('create_discussion_on_first_message', { discussionId });
+  }
+
+  onDiscussionCreatedOnFirstMessage(callback: (discussionData: Discussion) => void){
+    this.socket?.on('discussion_created_on_first_message', callback);
+
+    return () => {
+      this.socket?.off('discussion_created_on_first_message', callback);
     }
   }
 

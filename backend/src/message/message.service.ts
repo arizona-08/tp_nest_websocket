@@ -38,7 +38,7 @@ export class MessageService {
         }
       })
   
-      return message;
+      return {...message, reactions: []};
     } catch (error) {
       throw new InternalServerErrorException("Failed to save message", error.message);
     }
@@ -46,6 +46,16 @@ export class MessageService {
 
   async addReaction(messageId: string, userId: string, emoji: string) {
     try {
+      const existingMessage = await this.prismaService.message.findUnique({
+        where: {
+          id: messageId
+        }
+      });
+
+      if (!existingMessage) {
+        throw new BadRequestException("Message not found");
+      }
+
       const reaction = await this.prismaService.messageReaction.create({
         data: {
           messageId,
@@ -66,7 +76,7 @@ export class MessageService {
       return {
         ...reaction
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding reaction:", error);
       throw new InternalServerErrorException("Failed to add reaction", error);
     }

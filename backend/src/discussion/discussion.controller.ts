@@ -27,9 +27,17 @@ export class DiscussionController {
     return this.discussionService.getUserDiscussions(authUserId, type.toUpperCase() as "PRIVATE" | "GROUP");
   }
 
+  @Get('general')
+  async getGeneralDiscussion() {
+    const discussion = await this.discussionService.getGeneralDiscussion();
+    return discussion;
+  }
+
   @Get(':id')
   async getDiscussion(@Req() req: any, @Param('id') discussionId: string) {
     const userId = req.session.user.id;
     return this.discussionService.getDiscussion(discussionId, userId);
   }
+
+ 
 }

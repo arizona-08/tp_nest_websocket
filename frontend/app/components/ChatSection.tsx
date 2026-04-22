@@ -4,16 +4,20 @@ import { ArrowLeft } from 'lucide-react'
 import { useDiscussionListStore } from '../stores/DiscussionListStore'
 import { useEffect, useRef, useState } from 'react';
 import { messageSocketService } from '@/features/socket/socket';
-import { getDiscussion } from '@/features/discussion/get-my-discussions';
+import { getDiscussion, getGeneralDiscussion } from '@/features/discussion/get-my-discussions';
 import { formatDiscussionName } from '@/utils/discussion';
 import { useAuthStore } from '../stores/AuthStore';
 import { Message } from '@/types/message';
 import { formatTime } from '@/utils/date';
 import { set } from 'zod';
 import ReactionSlot from './ReactionSlot';
+import { useSearchParams } from 'next/navigation';
 
 
 function ChatSection() {
+
+  const searchParams = useSearchParams();
+  const typeQuery = searchParams.get("type");
 
   const openDiscussionList = useDiscussionListStore((state) => state.open);
 
@@ -63,18 +67,11 @@ function ChatSection() {
         reactions: [],
       }
 
+      if(allMessages.length === 0 && typeQuery === "private" || typeQuery === "group") {
+        messageSocketService.createDiscussionOnFirstMessage(activeDiscussion.id);
+      }
+
       messageSocketService.sendMessage(dataToSend, activeDiscussion.id);
-      setAllMessages((prevMessages) => [
-        ...prevMessages, 
-        { ...dataToSend, id: `temp-${Date.now()}`, 
-        discussionId: activeDiscussion.id, 
-        sendedAt: new Date().toISOString(),
-        author: {
-          id: authUser?.id || "",
-          username: authUser?.username || "",
-          usernameColor: authUser?.usernameColor || ""
-        }
-      }]);
       setMessage("");
     }
   }
@@ -207,7 +204,7 @@ function ChatSection() {
       unsubscribeOnReactionAdded();
       unsubscribeOnReactionRemoved();
       messageSocketService.leaveDiscussion(activeDiscussion.id);
-      messageSocketService.disconnect();
+      // messageSocketService.disconnect(); // Removed to prevent closing the shared socket connection
     };
   }, [])
 
@@ -215,19 +212,27 @@ function ChatSection() {
     async function fetchActiveDiscussion(){
       if(activeDiscussion.id) {
         const response = await getDiscussion(activeDiscussion.id);
-        const fetchedDiscussion = await response.json();
 
-        setActiveDiscussion({
-          id: fetchedDiscussion.id,
-          name: formatDiscussionName(fetchedDiscussion, authUser?.id || "")
-        });
-
-        setAllMessages(fetchedDiscussion.messages); 
+        if(response.ok) {
+          const fetchedDiscussion = await response.json();
+  
+          setActiveDiscussion({
+            id: fetchedDiscussion.id,
+            name: formatDiscussionName(fetchedDiscussion, authUser?.id || "")
+          });
+  
+          setAllMessages(fetchedDiscussion.messages); 
+        } else {
+          console.error("Failed to fetch discussion details");
+          console.log(response.status)
+        }
       }
     }
 
     fetchActiveDiscussion();
   }, [activeDiscussion.id])
+
+  
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
