@@ -61,10 +61,9 @@ function DiscussionList() {
   }, [activeDiscussion.id])
 
   useEffect(() => {
-    if(!activeDiscussion) return;
+    if(!authUser) return;
     messageSocketService.connect();
-    messageSocketService.joinDiscussion(`user_${authUser?.id}`);
-    console.log(authUser)
+    messageSocketService.joinDiscussion(`user_${authUser.id}`);
 
     const unsubscribeOnDiscussionCreatedOnFirstMessage = messageSocketService.onDiscussionCreatedOnFirstMessage((discussionData) => {
       const discussion: Discussion = {
@@ -76,17 +75,18 @@ function DiscussionList() {
         messages: discussionData.messages,
       }
 
-      // If the discussion already exists in the list, we don't add it again
-      const discussionExists = discussions.some(d => d.id === discussion.id);
-      if(discussionExists) return;
-      setDiscussions((prevDiscussions) => [discussion, ...prevDiscussions]);
+      
+      setDiscussions((prevDiscussions) => {
+        const discussionExists = prevDiscussions.some(d => d.id === discussion.id);
+        if(discussionExists) return prevDiscussions;
+        return [discussion, ...prevDiscussions];
+      });
       
     });
 
     return () => {
       unsubscribeOnDiscussionCreatedOnFirstMessage();
-      messageSocketService.leaveDiscussion(`user_${authUser?.id}`);
-      messageSocketService.disconnect();
+      messageSocketService.leaveDiscussion(`user_${authUser.id}`);
     }
   }, [authUser])
 
