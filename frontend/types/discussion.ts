@@ -2,7 +2,7 @@ import { Message } from "./message";
 
 export type Discussion = {
   id: string;
-  type: "PRIVATE" | "GROUP";
+  type: "PRIVATE" | "GROUP" | "GENERAL";
   name: string | null;
   lastMessageAt: string;
   messages: Message[];
