@@ -149,12 +149,10 @@ function ChatSection() {
     });
 
     const unsubscribeOnUserTyping = messageSocketService.onUserTyping((data) => {
-      console.log(`${data.username} is typing...`);
       setUsersTyping((prev) => [...prev, data.username]);
     });
 
     const unsubscribeOnUserStopTyping = messageSocketService.onUserStopTyping((data) => {
-      console.log(`${data.username} has stopped typing.`);
       setUsersTyping((prev) => prev.filter((username) => username !== data.username));
     });
 
