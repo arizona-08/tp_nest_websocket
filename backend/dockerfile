@@ -17,4 +17,7 @@ RUN chown -R node:node /app
 # La génération se fera avec les permissions de l'utilisateur node
 RUN npx prisma generate
 
+RUN chmod +x ./entrypoint.sh
+
+ENTRYPOINT ["sh", "./entrypoint.sh"]
 CMD ["npm", "run", "start:dev"]

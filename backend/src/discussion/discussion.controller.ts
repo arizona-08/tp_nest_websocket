@@ -22,15 +22,15 @@ export class DiscussionController {
   }
   
   @Get('me')
-  async getUserDiscussions(@Req() req: any, @Query('type') type: "private" | "group") {
+  async getUserDiscussions(@Req() req: any, @Query('type') type: "private" | "group" | "general") {
     const authUserId = req.session.user.id;
-    return this.discussionService.getUserDiscussions(authUserId, type.toUpperCase() as "PRIVATE" | "GROUP");
+    return this.discussionService.getUserDiscussions(authUserId, type.toUpperCase() as "PRIVATE" | "GROUP" | "GENERAL");
   }
 
   @Get('general')
   async getGeneralDiscussion() {
     const discussion = await this.discussionService.getGeneralDiscussion();
-    return discussion;
+    return [discussion];
   }
 
   @Get(':id')
