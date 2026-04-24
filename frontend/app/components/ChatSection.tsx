@@ -202,7 +202,6 @@ function ChatSection() {
       unsubscribeOnReactionAdded();
       unsubscribeOnReactionRemoved();
       messageSocketService.leaveDiscussion(activeDiscussion.id);
-      // messageSocketService.disconnect(); // Removed to prevent closing the shared socket connection
     };
   }, [])
 
