@@ -10,19 +10,10 @@
 
 - Lancer le backend avec la commande docker compose up --build -d
 
-- Dans le dossier backend, lancer la commande `docker exec -it backend npx prisma migrate deploy`
-
-- Dans le dossier frontend faire `npm install` et `npm run dev` pour le lancer (directement sur la machine et pas dans docker)
-
 - Se rendre sur http://localhot:3000, s'inscrire et se connecter (créer trois comptes différents pour tester les discussions privées et les groupes)
 
 
 ## Bugs potentiel
-
-### Avec nextjs
-
-Il se peut que le frontend charge indéfiniement au lancement de l'application. Si ça arrive, supprimez les dossiers .next et node_modules, relancez la commande npm install dans le dossier frontend et enfin relancez la commande npm run dev. si rien de tout ça marche, redémarrez votre ordinateur et refaites les étapes précédentes.
-
 
 ### Avec nestjs
 
