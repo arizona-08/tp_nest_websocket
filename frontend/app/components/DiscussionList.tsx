@@ -26,6 +26,7 @@ function DiscussionList() {
   const [discussions, setDiscussions] = useState<Discussion[]>([]);
 
   const filteredDiscussions = discussions.filter((discussion) => {
+    if(typeQuery === "general") return discussion.type === "GENERAL";
     if(typeQuery === "group") return discussion.type === "GROUP";
     return discussion.type === "PRIVATE";
   });
@@ -38,27 +39,26 @@ function DiscussionList() {
   };
 
   useEffect(() => {
-    if(typeQuery === "general") return;
     getMydiscussions();
   }, [typeQuery])
 
-  useEffect(() => {
-    if(typeQuery === "general") {
+  // useEffect(() => {
+  //   if(typeQuery === "general") {
       
-      const fetchGeneralDiscussion = async () => {
-        const response = await getGeneralDiscussion();
-        const generalDiscussion = await response.json();
+  //     const fetchGeneralDiscussion = async () => {
+  //       const response = await getGeneralDiscussion();
+  //       const generalDiscussion = await response.json();
 
-        setActiveDiscussion({
-          id: generalDiscussion.id,
-          name: generalDiscussion.name
-        });
+  //       setActiveDiscussion({
+  //         id: generalDiscussion.id,
+  //         name: generalDiscussion.name
+  //       });
 
-      }
+  //     }
 
-      fetchGeneralDiscussion();
-    }
-  }, [activeDiscussion.id])
+  //     fetchGeneralDiscussion();
+  //   }
+  // }, [activeDiscussion.id])
 
   useEffect(() => {
     if(!authUser) return;
@@ -91,46 +91,58 @@ function DiscussionList() {
   }, [authUser])
 
   return (
-    <aside className={`relative border-r border-gray-100 flex flex-col overflow-y-auto ${isDiscussionListOpen ? 'w-full' : 'w-0'} transition-all duration-300 md:w-1/3 lg:w-1/4`}>
+    <aside className={`sticky border-r border-gray-100 flex flex-col overflow-y-auto ${isDiscussionListOpen ? 'w-full' : 'w-0'} transition-all duration-300 md:w-1/3 lg:w-1/4`}>
       <AddUserModal refetchDiscussions={getMydiscussions}/>
       <div className="p-4 font-bold text-xl sticky top-0 bg-white flex items-center justify-between">
-        <div className="flex items-center gap-2" onClick={closeDiscussionList}>
-          <ArrowLeft className="md:hidden" />
-          <h2>Message</h2>
+        <div className="flex items-center gap-2" >
+          
+          <h2>Discussions</h2>
         </div>
         <UserPlus className="w-10 h-10 p-2 hover:bg-gray-100 rounded-md" onClick={openAddUserModal}/>
       </div>
       <div className="flex-1">
-        {filteredDiscussions.map((discussion) => {
-          const discussionName = formatDiscussionName(discussion, authUser?.id || "");
-
-          return (
-            <div key={discussion.id} className={`px-2 py-3 cursor-pointer hover:bg-gray-200 flex items-center gap-3 ${activeDiscussion.id === discussion.id ? 'bg-gray-200' : ''}`}
-              onClick={() => {
-                closeDiscussionList()
-                
-                if(activeDiscussion.id !== discussion.id) {
-                  setActiveDiscussion({ id: discussion.id, name: discussionName });
-                }
-              }}
-            >
-              <CircleUserRound />
-              <div className="w-full">
-                <div className=" flex items-center justify-between">
-                  <p className="font-semibold">{discussionName}</p>
-                  { discussion.messages.length > 0 ? (
-                    <p className="text-xs text-gray-600">{formatDate(discussion.lastMessageAt)}</p>
-                  ) : null }
-                </div>
-                {discussion.messages.length > 0 ? (
-                  <p className="text-sm text-gray-500">{discussion.messages[0].content}</p>
-                ) : (
-                  <p>Aucun message pour le moment</p>
-                ) }
-              </div>
+        { discussions && discussions.length === 0 ? (
+          <>
+            <div className="w-full h-full flex items-center justify-center p-4 text-gray-500">
+              Aucune discussion
             </div>
-          )
-        })}
+          </>
+        ) : (
+          <>
+            {filteredDiscussions.map((discussion) => {
+              const discussionName = formatDiscussionName(discussion, authUser?.id || "");
+
+              return (
+                <div key={discussion.id} className={`px-2 py-3 cursor-pointer hover:bg-gray-200 flex items-center gap-3 ${activeDiscussion.id === discussion.id ? 'bg-gray-200' : ''}`}
+                  onClick={() => {
+                    closeDiscussionList()
+                    
+                    if(activeDiscussion.id !== discussion.id) {
+                      setActiveDiscussion({ id: discussion.id, name: discussionName });
+                    }
+                  }}
+                >
+                  <CircleUserRound />
+                  <div className="w-full">
+                    <div className=" flex items-center justify-between">
+                      <p className="font-semibold">{discussionName}</p>
+                      { discussion.messages.length > 0 ? (
+                        <p className="text-xs text-gray-600">{formatDate(discussion.lastMessageAt)}</p>
+                      ) : null }
+                    </div>
+                    {discussion.messages.length > 0 ? (
+                      <p className="text-sm text-gray-500">{discussion.messages[0].content}</p>
+                    ) : (
+                      <p className="text-sm text-gray-500">Aucun message pour le moment</p>
+                    ) }
+                  </div>
+                </div>
+              )
+            })}
+          </>
+        )}
+        
+
       </div>
     </aside>
   )

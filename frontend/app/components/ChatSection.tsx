@@ -244,7 +244,7 @@ function ChatSection() {
 
   return (
     <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
-      <div className="h-16 border-b bg-white flex items-center gap-4 px-6">
+      <div className="h-16 border-b border-b-gray-100 bg-white flex items-center gap-4 px-6">
         <div className="flex items-center gap-4 cursor-pointer" onClick={openDiscussionList}>
           <ArrowLeft className="md:hidden"/>
           <p className="font-semibold">{activeDiscussion.name}</p>
@@ -283,11 +283,11 @@ function ChatSection() {
           <div ref={messagesEndRef} />
       </div>
 
-      <form className="p-4 bg-white border-t flex items-center gap-4">
+      <form className="p-4 bg-white border-t border-t-gray-200 flex items-center gap-4">
           <input 
             type="text" 
             placeholder="Type a message..." 
-            className="w-full p-2 border rounded-lg"
+            className="w-full p-2 border border-gray-200 rounded-lg outline-none focus:ring-1 focus:ring-blue-500"
             value={message}
             onChange={handleMessageChange}
           />

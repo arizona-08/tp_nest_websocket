@@ -11,7 +11,7 @@ interface DiscussionListState {
   close: () => void;
 }
 export const useDiscussionListStore = create<DiscussionListState>()((set) => ({
-  isDiscussionListOpen: false,
+  isDiscussionListOpen: true,
   activeDiscussion: {
     id: "",
     name: ""
