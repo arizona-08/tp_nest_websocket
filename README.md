@@ -15,11 +15,6 @@
 
 ## Bugs potentiel
 
-### Avec nextjs
-
-Il se peut que le frontend charge indéfiniement au lancement de l'application. Si ça arrive, supprimez les dossiers .next et node_modules, relancez la commande npm install dans le dossier frontend et enfin relancez la commande npm run dev. si rien de tout ça marche, redémarrez votre ordinateur et refaites les étapes précédentes.
-
-
 ### Avec nestjs
 
 Vérifiez bien que vos .env.example soient renommés en .env et que les variables essentielles y sont et remplies correctement et que les valeurs des variables partagées entre la racine du projet et celles du backend soient les mêmes.
