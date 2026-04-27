@@ -15,6 +15,24 @@
 
 ## Bugs potentiel
 
-### Avec nestjs
+### Avec Nextjs
+
+Il se peut que l'application soit très lente en mode dev dans docker. 
+
+Si c'est le cas:
+
+  - Supprimez les conteneurs de l'application avec `docker compose down`
+
+  - Commentez le service frontend dans *docker-compose.yml*
+
+  - Relancez la stack docker
+
+  - Dans le dossier frontend lancez la commande `sudo rm -rf node_modules ./.next`
+
+  - Dans le dossier frontend installez les dépendances avec `npm i`
+
+  - Dans le dossier frontend, lancez l'application front avec `npm run dev`
+
+### Avec Nestjs
 
 Vérifiez bien que vos .env.example soient renommés en .env et que les variables essentielles y sont et remplies correctement et que les valeurs des variables partagées entre la racine du projet et celles du backend soient les mêmes.
